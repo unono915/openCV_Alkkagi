@@ -1,6 +1,7 @@
 import cv2
 import mediapipe as mp
- 
+import math
+
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
  
@@ -26,11 +27,12 @@ with mp_hands.Hands(
         # 따라서int(hand_landmarks.landmark[4].x * 100)은 엄지손가락 끝의 x좌표를 100분율로 표시한 것이 된다. 
         if results.multi_hand_landmarks:
             for hand_landmarks in results.multi_hand_landmarks:
-                finger1 = int(hand_landmarks.landmark[4].x * 100 )
-                finger2 = int(hand_landmarks.landmark[8].x * 100 )
-                dist = abs(finger1 - finger2)
+                # finger1 = int(hand_landmarks.landmark[4].x * 100 )
+                # finger2 = int(hand_landmarks.landmark[8].x * 100 )
+                dist = abs(math.dist([hand_landmarks.landmark[4].x, hand_landmarks.landmark[4].y], [hand_landmarks.landmark[8].x, hand_landmarks.landmark[8].y]))
                 cv2.putText(
-                    image, text='f1=%d f2=%d dist=%d ' % (finger1,finger2,dist), org=(10, 30),
+                    # image, text='f1=%d f2=%d dist=%d ' % (finger1,finger2,dist), org=(10, 30),
+                    image, text='dist=%f ' % (dist), org=(10, 30),
                     fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1,
                     color=255, thickness=3)
  
