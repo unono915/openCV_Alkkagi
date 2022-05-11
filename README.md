@@ -22,6 +22,9 @@ https://www.petercollingridge.co.uk/tutorials/pygame-physics-simulation/)
     이후 엄지손가락 끝과 해당 손가락 끝의 거리 최대일때까지의 [시간 & 거리] 측정
     
     -> 시간과 거리를 통해 파워 계산
+    
+    카메라부터 손까지의 거리 : 손바닥 크기를 측정
+    일정한 크기의 손바닥을 기준으로 설정
 
 4. \+ @
 
