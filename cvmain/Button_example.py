@@ -64,7 +64,8 @@ for i in range(len(keys)):
 
 while True:
     success, img = cap.read()
-    hands, img = detector.findHands(img)
+    img = cv2.flip(img, 1)
+    hands, img = detector.findHands(img,flipType=False)
     lmList = 0
     if hands:
         hand = hands[0]
@@ -92,7 +93,7 @@ while True:
                     cv2.putText(img, button.text, (x + 20, y + 65),
                                 cv2.FONT_HERSHEY_PLAIN, 4, (255, 255, 255), 4)
                     finalText += button.text
-                    sleep(0.15)
+                    sleep(1)
 
     cv2.rectangle(img, (50, 350), (700, 450), (175, 0, 175), cv2.FILLED)
     cv2.putText(img, finalText, (60, 430),
