@@ -5,24 +5,6 @@ from anglespeed import *
 from Screen import *
 from Stone import *
 
-
-"""
-realmain의 구조와 movement_substpes, FPS, dt 등의 상수는 Gravity 4 코드에서 일부 참조했다.
-<Gravity Simulation - 4.0.0> 
-https://www.pygame.org/project/617/4587 
-http://geometrian.com/programming/index.php 
-http://www.geometrian.com/data/programming/projects/Gravitation/Simulation%204.0.0/Gravity4.zip
-
-pygame에서 한글 출력하는 방법은 빗자루네 블로그에서 참조했다.
-<pygame 한글 출력>
-http://imp17.com/tc/myevan/133?fbclid=IwAR3C8PL16p5Vr0D5wMpNGFKSnfzTk6UNK8OM2sCO2iihFXXONeofkA03yPQ
-
-anglespeed의 구조는 일부 pygame-physics-simulation에서 가져왔다.
-<pygame-physics-simulation>
-http://www.petercollingridge.co.uk/tutorials/pygame-physics-simulation/
-"""
-# screen_size = [800, 600]
-
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
@@ -40,39 +22,25 @@ movement_substeps = 1
 FPS = 60.0
 # dt (should be 1.0/FPS for realtime, but you can change it to speed up or slow down time)
 dt = 1.0 / FPS
-
 turn = 0
-
-icon = pygame.Surface((1, 1))
-icon.set_alpha(0)
-pygame.display.set_icon(icon)
-pygame.display.set_caption("OOP_LIGHTBULB")
-surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
-
-pygame.init()
-
-
 num_of_stone = 10  # 돌의 개수
 now_select = 0  # 현재 선택된 돌의 번호
-fontObj = pygame.font.Font("NanumSquareRoundB.ttf", 16)
 
-# team 0
-stones = [Stone(start_x=i * 78 + 244, start_y=144, mass=i, team=0, surface=surface) for i in range(5)]
-# team 1
-stones += [Stone(start_x=i * 78 + 244, start_y=457, mass=i + 5, team=1, surface=surface) for i in range(5)]
+"""
+realmain의 구조와 movement_substpes, FPS, dt 등의 상수는 Gravity 4 코드에서 일부 참조했다.
+<Gravity Simulation - 4.0.0> 
+https://www.pygame.org/project/617/4587 
+http://geometrian.com/programming/index.php 
+http://www.geometrian.com/data/programming/projects/Gravitation/Simulation%204.0.0/Gravity4.zip
 
-# 서피스(게임판)전달
+pygame에서 한글 출력하는 방법은 빗자루네 블로그에서 참조했다.
+<pygame 한글 출력>
+http://imp17.com/tc/myevan/133?fbclid=IwAR3C8PL16p5Vr0D5wMpNGFKSnfzTk6UNK8OM2sCO2iihFXXONeofkA03yPQ
 
-
-# 화면 생성
-screen = Screen("lightbulb", 1000, 600, (0, 0, 0))  # 게임화면
-window = screen.screen
-# surface = pygame.Surface((500, 500))  # 게임판
-# surface.fill((205, 154, 91))  # 바둑판 색
-board_img = pygame.image.load("board.png").convert()
-board_img = pygame.transform.scale(board_img, (500, 500))
-window.blit(board_img, (150, 50))  # 바둑판 위치
+anglespeed의 구조는 일부 pygame-physics-simulation에서 가져왔다.
+<pygame-physics-simulation>
+http://www.petercollingridge.co.uk/tutorials/pygame-physics-simulation/
+"""
 
 
 def textprint(printobj, xcord=400, ycord=30):
@@ -82,12 +50,64 @@ def textprint(printobj, xcord=400, ycord=30):
     window.blit(textSurfaceObj, textRectObj)
 
 
+def score():
+    scored = dict()
+    for stone in stones:
+        scored.setdefault(stone.team, 0)
+        sum = stone.visible
+        scored[stone.team] = scored[stone.team] + sum
+
+    if scored[0] == 0:
+        return "GRAY WIN"
+    elif scored[1] == 0:
+        return "WHITE WIN"
+    else:
+        return "White : " + str(scored[0]) + " vs Gray :" + str(scored[1]) + "\n" + "Selection :" + str(now_select + 1)
+
+
+icon = pygame.Surface((1, 1))
+icon.set_alpha(0)
+pygame.display.set_icon(icon)
+pygame.display.set_caption("OOP_LIGHTBULB")
+surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+pygame.init()
+
+fontObj = pygame.font.Font("NanumSquareRoundB.ttf", 16)
+
+# team 0
+stones = [Stone(start_x=i * 78 + 244, start_y=144, mass=i, team=0, surface=surface) for i in range(5)]
+# team 1
+stones += [Stone(start_x=i * 78 + 244, start_y=457, mass=i + 5, team=1, surface=surface) for i in range(5)]
+
+
+# 화면 생성
+# screen = Screen("lightbulb", 1000, 600, (0, 0, 0))
+window = Screen("lightbulb", 1000, 600, (0, 0, 0)).screen  # 게임화면
+
+# 바둑판
+board_img = pygame.image.load("board.png").convert()
+board_img = pygame.transform.scale(board_img, (500, 500))
+window.blit(board_img, (150, 50))  # 바둑판 위치
+
+# 화살표
+arrow_img = pygame.image.load("arrow4.png").convert_alpha()
+# arrow4_img = pygame.image.load("arrow4.png").convert_alpha()
+# arrow5_img = pygame.image.load("arrow5.png").convert_alpha()
+# a3 (614, 195)
+# a4 (633, 102)
+# a5 (569, 302)
+
+arrow_img = pygame.transform.scale(arrow_img, (60, 15))
+offset = pygame.math.Vector2(arrow_img.get_width() // 2, 0)  # 벡터
+
+
 def new_draw():  # 돌 클래스에서 게임판을 전달받았으므로 draw에서 surface안써줘도됨
     window.fill((0, 0, 0))
     window.blit(board_img, (150, 50))
     # arrow(-stones[now_select].angle)
-    arrow2(stones[now_select].x, stones[now_select].y, -stones[now_select].angle)
-
+    # arrow2(stones[now_select].x, stones[now_select].y, -stones[now_select].angle)
+    arrow(arrow_img, stones[now_select].angle, (stones[now_select].x, stones[now_select].y))
     for stone in stones:  # 바둑 돌
         if stone.visible:
             stone.draw()
@@ -125,39 +145,22 @@ def new_move():
                         stones[p.bycon].check_alive(p.mass)
 
 
-def arrow(angle):
-    arrowimg = pygame.transform.scale(pygame.image.load("arrow.png").convert_alpha(), (64, 64))
-    rotarrow = pygame.transform.rotate(arrowimg, angle)
-    position = rotarrow.get_rect(center=(800, 480))
-    window.blit(rotarrow, position)
+def arrow(surface, angle, pivot):
 
+    rotated_image = pygame.transform.rotozoom(surface, -angle, 1)  # Rotate the image.
+    rotated_offset = offset.rotate(angle)  # Rotate the offset vector.
+    # Add the offset vector to the center/pivot point to shift the rect.
 
-def arrow2(x, y, angle):
-    arrowimg = pygame.transform.scale(pygame.image.load("arrow2.png").convert_alpha(), (50, 50))
-    rotarrow = pygame.transform.rotate(arrowimg, angle)
-    # position = rotarrow.get_rect(center=(800, 480))
-    window.blit(rotarrow, (x, y))
-
-
-def score():
-    scored = dict()
-    for stone in stones:
-        scored.setdefault(stone.team, 0)
-        sum = stone.visible
-        scored[stone.team] = scored[stone.team] + sum
-
-    if scored[0] == 0:
-        return "GRAY WIN"
-    elif scored[1] == 0:
-        return "WHITE WIN"
-    else:
-        return "White : " + str(scored[0]) + " vs Gray :" + str(scored[1]) + "\n" + "Selection :" + str(now_select + 1)
+    rect = rotated_image.get_rect(center=pivot + rotated_offset)
+    window.blit(rotated_image, rect)  # Blit the rotated image.
+    pygame.draw.circle(window, (30, 250, 70), pivot, 3)  # Pivot point.
+    # pygame.draw.rect(window, (30, 250, 70), rect, 1)  # The rect.
 
 
 if __name__ == "__main__":
     clock = pygame.time.Clock()
     while True:
-        print(pygame.mouse.get_pos())  # 마우스 위치
+        # print(pygame.mouse.get_pos())  # 마우스 위치
         temp = now_select
 
         key_event = pygame.key.get_pressed()
