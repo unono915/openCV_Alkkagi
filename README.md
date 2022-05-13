@@ -1,8 +1,24 @@
 # OpenCV를 이용한 알까기 게임
-### 사용할 Library
+
+## 1. 목적
+키보드나 마우스를 통한 조작 없이 직접 손가락을 튕겨서 알까기 게임을 진행할 수 있도록 한다. 
+
+## 2. 사용한 Library
 OpenCV, MediaPipe(손가락 인식), pygame(게임 gui 구현) 등
 
-## 알까기 게임 - pygame으로 구현
+
+## 3. How to Run?
+### Install Requirements
+```
+pip install -r requirements.txt
+```
+### Run python script 
+```
+python game/main.py
+```
+
+
+## 4. 알까기 게임 - pygame으로 구현 과정
 [<참고>](
 https://www.petercollingridge.co.uk/tutorials/pygame-physics-simulation/)
 
@@ -26,9 +42,9 @@ https://www.petercollingridge.co.uk/tutorials/pygame-physics-simulation/)
     카메라부터 손까지의 거리 : 손바닥 크기를 측정
     일정한 크기의 손바닥을 기준으로 설정
 
-4. \+ @
 
-## 게임 진행 방식
+
+## 5. 게임 진행 방식
 1. 게임 시작 후 두 플레이어가 번갈아 가면서 알을 발사
 2. while(말이 남아있다면) { 번갈아 가면서 진행
 
@@ -41,5 +57,3 @@ https://www.petercollingridge.co.uk/tutorials/pygame-physics-simulation/)
     3\) 발사 준비 버튼 누른 뒤, 손 인식 영역에 손가져오기
 
     4\) 손가락 튕기기를 통해 알 발사
-
-##
