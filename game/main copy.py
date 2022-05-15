@@ -1,6 +1,11 @@
 import pygame
 import sys
 
+import threading
+import cv2
+import mediapipe as mp
+import math
+
 from anglespeed import *
 from Screen import *
 from Stone import *
@@ -73,7 +78,7 @@ surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 pygame.init()
 
-fontObj = pygame.font.Font("assets/NanumSquareRoundB.ttf", 16)
+fontObj = pygame.font.Font("NanumSquareRoundB.ttf", 16)
 
 # team 0
 stones = [Stone(start_x=i * 78 + 244, start_y=144, mass=i, team=0, surface=surface) for i in range(5)]
@@ -86,12 +91,12 @@ stones += [Stone(start_x=i * 78 + 244, start_y=457, mass=i + 5, team=1, surface=
 window = Screen("lightbulb", 1000, 600, (0, 0, 0)).screen  # 게임화면
 
 # 바둑판
-board_img = pygame.image.load("assets/board.png").convert()
+board_img = pygame.image.load("board.png").convert()
 board_img = pygame.transform.scale(board_img, (500, 500))
 window.blit(board_img, (150, 50))  # 바둑판 위치
 
 # 화살표
-arrow_img = pygame.image.load("assets/arrow4.png").convert_alpha()
+arrow_img = pygame.image.load("arrow4.png").convert_alpha()
 # arrow4_img = pygame.image.load("arrow4.png").convert_alpha()
 # arrow5_img = pygame.image.load("arrow5.png").convert_alpha()
 # a3 (614, 195)
@@ -137,13 +142,12 @@ def new_move():
             if p.visible:
                 p.move(dt / float(movement_substeps))  # 보일 때만 움직임
             for q in stones:
-                if p == q:
-                    continue
-                collide(p, q)
-                if not q.visible and p.bycon == q.mass:
-                    stones[q.bycon].check_alive(q.mass)
-                if not p.visible and q.bycon == p.mass:
-                    stones[p.bycon].check_alive(p.mass)
+                if p != q:
+                    collide(p, q)
+                    if not q.visible and p.bycon == q.mass:
+                        stones[q.bycon].check_alive(q.mass)
+                    if not p.visible and q.bycon == p.mass:
+                        stones[p.bycon].check_alive(p.mass)
 
 
 def arrow(surface, angle, pivot):
@@ -158,7 +162,58 @@ def arrow(surface, angle, pivot):
     # pygame.draw.rect(window, (30, 250, 70), rect, 1)  # The rect.
 
 
+mp_drawing = mp.solutions.drawing_utils
+mp_hands = mp.solutions.hands
+hands = mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.5, min_tracking_confidence=0.5)
+
+
+def cvgame():
+    while cap.isOpened():
+        success, image = cap.read()
+        if not success:
+            continue
+        image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
+
+        results = hands.process(image)
+
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+        # 즉, 업지손가락 끝은 landmark[4]에, 검지 손가락 끝은 landmark[8]에 좌표값이 반환되는데,
+        # 좌표값은 image상의 x,y위치값을 0.0~1.0 사이의 값으로 표시한다. 즉 image 좌측 최상단은 x=0.0 y=0.0  우측최하단은 x=1.0, y=1.0이 된다.
+        # 따라서int(hand_landmarks.landmark[4].x * 100)은 엄지손가락 끝의 x좌표를 100분율로 표시한 것이 된다.
+        if results.multi_hand_landmarks:
+            for hand_landmarks in results.multi_hand_landmarks:
+                # finger1 = int(hand_landmarks.landmark[4].x * 100 )
+                # finger2 = int(hand_landmarks.landmark[8].x * 100 )
+                dist = abs(
+                    math.dist(
+                        [hand_landmarks.landmark[4].x, hand_landmarks.landmark[4].y],
+                        [hand_landmarks.landmark[8].x, hand_landmarks.landmark[8].y],
+                    )
+                )
+                cv2.putText(
+                    # image, text='f1=%d f2=%d dist=%d ' % (finger1,finger2,dist), org=(10, 30),
+                    image,
+                    text="dist=%f " % (dist),
+                    org=(10, 30),
+                    fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                    fontScale=1,
+                    color=255,
+                    thickness=3,
+                )
+
+                mp_drawing.draw_landmarks(image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+
+        cv2.imshow("image", image)
+        if cv2.waitKey(1) == ord("q"):
+            break
+
+
 if __name__ == "__main__":
+    cap = cv2.VideoCapture(0)
+    t = threading.Thread(target=cvgame)
+    t.start()
+
     clock = pygame.time.Clock()
     while True:
         # print(pygame.mouse.get_pos())  # 마우스 위치
@@ -189,7 +244,7 @@ if __name__ == "__main__":
             else:
                 stones[temp].color = GRAY
 
-        stones[now_select].vel += vel
+        stones[now_select].vel = stones[now_select].vel + vel
         new_move()
         new_draw()
         if abs(turn * 9 - now_select) >= 5:

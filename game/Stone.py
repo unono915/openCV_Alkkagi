@@ -11,10 +11,9 @@ class Stone:  # 처음 돌을 놓는 위치와 레벨을 전달받고, 반지름
         self.x = start_x
         self.y = start_y
         self.mass = mass
-        if team == 0:
-            self.color = (255, 255, 255)  # White
-        else:
-            self.color = (128, 128, 128)  # Gray
+
+        self.color = (128, 128, 128) if team else (255, 255, 255)
+
         self.isalive = True
         self.angle = 0
         self.vel = 0
@@ -54,7 +53,7 @@ class Stone:  # 처음 돌을 놓는 위치와 레벨을 전달받고, 반지름
         pygame.draw.circle(self.surface, self.color, (int(self.x), int(self.y)), int(self.radius), 0)
 
     def is_dead(self):
-        return self.visible
+        return not self.visible
 
     def check_alive(self, index):
         temp = abs(self.bycon // 5 - self.mass // 5)  # 서로 다른 팀이 부딪힘
