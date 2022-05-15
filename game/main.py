@@ -137,12 +137,13 @@ def new_move():
             if p.visible:
                 p.move(dt / float(movement_substeps))  # 보일 때만 움직임
             for q in stones:
-                if p != q:
-                    collide(p, q)
-                    if not q.visible and p.bycon == q.mass:
-                        stones[q.bycon].check_alive(q.mass)
-                    if not p.visible and q.bycon == p.mass:
-                        stones[p.bycon].check_alive(p.mass)
+                if p == q:
+                    continue
+                collide(p, q)
+                if not q.visible and p.bycon == q.mass:
+                    stones[q.bycon].check_alive(q.mass)
+                if not p.visible and q.bycon == p.mass:
+                    stones[p.bycon].check_alive(p.mass)
 
 
 def arrow(surface, angle, pivot):
@@ -183,7 +184,7 @@ if __name__ == "__main__":
             else:
                 stones[temp].color = GRAY
 
-        stones[now_select].vel = stones[now_select].vel + vel
+        stones[now_select].vel += vel
         new_move()
         new_draw()
         if abs(turn * 9 - now_select) >= 5:

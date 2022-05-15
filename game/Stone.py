@@ -1,7 +1,7 @@
 import pygame
 from math import *
 
-elasticity = 0.9999  # 충돌 시 속력 감소
+elasticity = 1  # 충돌 시 속력 감소
 
 
 class Stone:  # 처음 돌을 놓는 위치와 레벨을 전달받고, 반지름 질량은 기본값을 설정
@@ -46,8 +46,8 @@ class Stone:  # 처음 돌을 놓는 위치와 레벨을 전달받고, 반지름
             self.visible = 0
             print("%d died by out of range" % (self.mass + 1))"""
 
-        self.vel = 0.95 * self.vel  # 속도의 감소
-        if abs(self.vel) < 0.1:
+        self.vel *= 0.95  # 속도의 감소
+        if abs(self.vel) < 0.1: # TODO 정지하도록하는 threshold 조정
             self.vel = 0
 
     def draw(self):  # 스크린에 돌을 그린다.
@@ -80,20 +80,52 @@ class Stone:  # 처음 돌을 놓는 위치와 레벨을 전달받고, 반지름
 
 
 def collide(p1, p2):
-    dx = p1.x - p2.x
-    dy = p1.y - p2.y
+    m1, m2 = 1, 1 # p1, p2의 질량. 일단 상수로 하드코딩해두었음. 추후에 Stone 클래스에 질량 속성을 추가하면 m1,m2 대신 사용.
+    dx = p2.x - p1.x
+    dy = p2.y - p1.y
 
     dist = hypot(dx, dy)
-    if dist - 1 < p1.radius + p2.radius:
+    if dist-1 <= p1.radius + p2.radius:
         p1.bycon = p2.mass
         p2.bycon = p1.mass
 
-        speed1 = p2.vel * elasticity
-        speed2 = p1.vel * elasticity
+        tangent_line_angle = atan(dy/dx)/pi*180
 
-        angle1 = p1.angle
-        angle2 = p2.angle
+        angle1_transform = p1.angle - tangent_line_angle
+        angle2_transform = p2.angle - tangent_line_angle
 
-        (p1.angle, p1.vel) = (angle2, speed1)
-        (p2.angle, p2.vel) = (angle1, speed2)
+        vel1_y = p1.vel * sin(radians(angle1_transform))
+        vel2_y = p2.vel * sin(radians(angle2_transform))
+        
+        vel1_x = p1.vel * cos(radians(angle1_transform))
+        vel2_x = p2.vel * cos(radians(angle2_transform))
+        vel1_x_new = (1-(1+elasticity)*m2/(m1+m2))*vel1_x + (1+elasticity)*m2/(m1+m2)*vel2_x
+        vel2_x_new = (1-(1+elasticity)*m1/(m1+m2))*vel2_x + (1+elasticity)*m1/(m1+m2)*vel1_x
+
+        p1.vel = hypot(vel1_x_new, vel1_y)
+        p2.vel = hypot(vel2_x_new, vel2_y)
+        
+        if vel1_x_new == 0:
+            if vel1_y >=0:
+                p1.angle = 90+tangent_line_angle
+            else:
+                p1.angle = -90+tangent_line_angle
+        else:
+            p1.angle = atan(vel1_y/vel1_x_new)/pi*180 + tangent_line_angle
+            if vel1_x_new < 0:
+                p1.angle += 180
+        if vel2_x_new ==0:
+            if vel2_y >= 0:
+                p2.angle = 90+tangent_line_angle
+            else:
+                p2.angle = -90+tangent_line_angle
+        else:
+            p2.angle = atan(vel2_y/vel2_x_new)/pi*180 + tangent_line_angle
+            if vel2_x_new <0:
+                p2.angle += 180
+        
+
+
+
+
         # 복잡한 충돌은 이 게임에서 불가능하다.
