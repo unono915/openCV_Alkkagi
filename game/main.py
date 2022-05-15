@@ -73,7 +73,7 @@ surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 pygame.init()
 
-fontObj = pygame.font.Font("NanumSquareRoundB.ttf", 16)
+fontObj = pygame.font.Font("assets/NanumSquareRoundB.ttf", 16)
 
 # team 0
 stones = [Stone(start_x=i * 78 + 244, start_y=144, mass=i, team=0, surface=surface) for i in range(5)]
@@ -86,12 +86,12 @@ stones += [Stone(start_x=i * 78 + 244, start_y=457, mass=i + 5, team=1, surface=
 window = Screen("lightbulb", 1000, 600, (0, 0, 0)).screen  # 게임화면
 
 # 바둑판
-board_img = pygame.image.load("board.png").convert()
+board_img = pygame.image.load("assets/board.png").convert()
 board_img = pygame.transform.scale(board_img, (500, 500))
 window.blit(board_img, (150, 50))  # 바둑판 위치
 
 # 화살표
-arrow_img = pygame.image.load("arrow4.png").convert_alpha()
+arrow_img = pygame.image.load("assets/arrow4.png").convert_alpha()
 # arrow4_img = pygame.image.load("arrow4.png").convert_alpha()
 # arrow5_img = pygame.image.load("arrow5.png").convert_alpha()
 # a3 (614, 195)
@@ -137,12 +137,13 @@ def new_move():
             if p.visible:
                 p.move(dt / float(movement_substeps))  # 보일 때만 움직임
             for q in stones:
-                if p != q:
-                    collide(p, q)
-                    if not q.visible and p.bycon == q.mass:
-                        stones[q.bycon].check_alive(q.mass)
-                    if not p.visible and q.bycon == p.mass:
-                        stones[p.bycon].check_alive(p.mass)
+                if p == q:
+                    continue
+                collide(p, q)
+                if not q.visible and p.bycon == q.mass:
+                    stones[q.bycon].check_alive(q.mass)
+                if not p.visible and q.bycon == p.mass:
+                    stones[p.bycon].check_alive(p.mass)
 
 
 def arrow(surface, angle, pivot):
@@ -188,7 +189,7 @@ if __name__ == "__main__":
             else:
                 stones[temp].color = GRAY
 
-        stones[now_select].vel = stones[now_select].vel + vel
+        stones[now_select].vel += vel
         new_move()
         new_draw()
         if abs(turn * 9 - now_select) >= 5:
