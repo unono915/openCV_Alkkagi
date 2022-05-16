@@ -16,7 +16,6 @@ def stoneshooting(stone, selectstone, turn):
             if event.key == K_ESCAPE:
                 return -111, -111, turn
 
-            
             # 돌 선택
             if event.key == K_1:  # K_0 == 48 ~
                 now_select = 0 + turn * 5
@@ -43,17 +42,11 @@ def stoneshooting(stone, selectstone, turn):
 
             # 스페이스바를 입력받았을 때 진행하고 있는 상태라면 설정한 속도를 저장한 후 돌의 속도와 각도를 다시 0으로 초기화한다.
             elif event.key == K_SPACE and stone.vel == 0:
+                stone.angle = stone.arrow_angle
                 a = stone.hidvel
                 stone.hidvel = 0
                 stone.bycon = -1
                 turn = 1 - turn
                 return a, now_select, turn
 
-            # 방향 조절
-            """key_event = pygame.key.get_pressed()
-            if key_event[pygame.K_LEFT]:
-                stone.angle += plus_ang
-
-            elif key_event[pygame.K_RIGHT]:
-                stone.angle -= plus_ang"""
     return 0, now_select, turn

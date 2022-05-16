@@ -16,6 +16,7 @@ class Stone:  # 처음 돌을 놓는 위치와 레벨을 전달받고, 반지름
 
         self.isalive = True
         self.angle = 0
+        self.arrow_angle = 0
         self.vel = 0
         self.surface = surface
         self.team = team
@@ -33,21 +34,8 @@ class Stone:  # 처음 돌을 놓는 위치와 레벨을 전달받고, 반지름
             self.vel = 0
             print("%d died by out of range" % (self.mass + 1))
 
-        """if self.x > 650:
-            self.angle = 180 - self.angle
-            self.vel += 1
-        if self.y > 550:
-            self.visible = 0
-            print("%d died by out of range" % (self.mass + 1))
-        if self.x < 150:
-            self.angle = 180 - self.angle
-            self.vel += 1
-        if self.y < 50:
-            self.visible = 0
-            print("%d died by out of range" % (self.mass + 1))"""
-
         self.vel *= 0.95  # 속도의 감소
-        if abs(self.vel) < 10: # TODO 정지하도록하는 threshold 조정
+        if abs(self.vel) < 10:  # TODO 정지하도록하는 threshold 조정
             self.vel = 0
 
     def draw(self):  # 스크린에 돌을 그린다.
@@ -56,76 +44,67 @@ class Stone:  # 처음 돌을 놓는 위치와 레벨을 전달받고, 반지름
     def is_dead(self):
         return not self.visible
 
-    def check_alive(self, index):
-        temp = abs(self.bycon // 5 - self.mass // 5)  # 서로 다른 팀이 부딪힘
-        # print(self.mass+1, self.bycon, temp)
-        if temp == 1 and self.mass % 5 < self.bycon % 5 and self.bycon != -1:
-            print("%d died by contact miss" % (self.mass + 1))
-            print(self.mass + 1, self.bycon + 1, index + 1)
-
-            self.visible = 0
-            self.x = 800
-            self.radius = 0
-
-            self.vel = 0
-            self.angle = 0
-            self.bycon = -1
-
-    """def clicked(self):
-        pos = pygame.mouse.get_pos()
-        clicked_x, clicked_y = pos
-        distance = hypot(clicked_x - self.x, clicked_y - self.y)
-        if distance <= self.radius:
-            self.radius = self.radius // 2"""
+    def divide(self, stone):
+        self.vel += 20
+        stone.vel += 20
 
 
-def collide(p1, p2):
-    m1, m2 = 1, 1 # p1, p2의 질량. 일단 상수로 하드코딩해두었음. 추후에 Stone 클래스에 질량 속성을 추가하면 m1,m2 대신 사용.
+def collide(p1: Stone, p2: Stone):
+    m1, m2 = 1, 1  # p1, p2의 질량. 일단 상수로 하드코딩해두었음. 추후에 Stone 클래스에 질량 속성을 추가하면 m1,m2 대신 사용.
     dx = p2.x - p1.x
     dy = p2.y - p1.y
 
     dist = hypot(dx, dy)
-    if dist+1 <= p1.radius + p2.radius:
+    if dist + 1 <= p1.radius + p2.radius:
         p1.bycon = p2.mass
         p2.bycon = p1.mass
 
-        tangent_line_angle = atan(dy/dx)/pi*180
+        if dx == 0:
+            tangent_line_angle = 90 if dy > 0 else -90
+        else:
+            tangent_line_angle = atan(dy / dx) / pi * 180
+
+        # tangent_line_angle = atan(dy / dx) / pi * 180 if dx else 90
 
         angle1_transform = p1.angle - tangent_line_angle
         angle2_transform = p2.angle - tangent_line_angle
 
         vel1_y = p1.vel * sin(radians(angle1_transform))
         vel2_y = p2.vel * sin(radians(angle2_transform))
-        
+
         vel1_x = p1.vel * cos(radians(angle1_transform))
         vel2_x = p2.vel * cos(radians(angle2_transform))
-        vel1_x_new = (1-(1+elasticity)*m2/(m1+m2))*vel1_x + (1+elasticity)*m2/(m1+m2)*vel2_x
-        vel2_x_new = (1-(1+elasticity)*m1/(m1+m2))*vel2_x + (1+elasticity)*m1/(m1+m2)*vel1_x
+
+        vel1_x_new = (1 - (1 + elasticity) * m2 / (m1 + m2)) * vel1_x + (1 + elasticity) * m2 / (m1 + m2) * vel2_x
+        vel2_x_new = (1 - (1 + elasticity) * m1 / (m1 + m2)) * vel2_x + (1 + elasticity) * m1 / (m1 + m2) * vel1_x
 
         p1.vel = hypot(vel1_x_new, vel1_y)
         p2.vel = hypot(vel2_x_new, vel2_y)
-        
+
+        """if vel1_x_new == 0 and vel2_x_new == 0:
+            print(p1.mass, p1.vel, p2.mass, p2.vel)
+            p1.divide(p2)
+            return"""
+
         if vel1_x_new == 0:
-            if vel1_y >=0:
-                p1.angle = 90+tangent_line_angle
+            print(p1.mass, " angle:", p1.angle, " / ", p2.mass, " angle:", p2.angle, "\n")
+            if vel1_y >= 0:
+                p1.angle = 90 + tangent_line_angle
             else:
-                p1.angle = -90+tangent_line_angle
+                p1.angle = -90 + tangent_line_angle
         else:
-            p1.angle = atan(vel1_y/vel1_x_new)/pi*180 + tangent_line_angle
+            p1.angle = atan(vel1_y / vel1_x_new) / pi * 180 + tangent_line_angle
             if vel1_x_new < 0:
                 p1.angle += 180
-        if vel2_x_new ==0:
+        if vel2_x_new == 0:
+            print(p1.mass, " angle:", p1.angle, " / ", p2.mass, " angle:", p2.angle, "\n")
             if vel2_y >= 0:
-                p2.angle = 90+tangent_line_angle
+                p2.angle = 90 + tangent_line_angle
             else:
-                p2.angle = -90+tangent_line_angle
+                p2.angle = -90 + tangent_line_angle
         else:
-            p2.angle = atan(vel2_y/vel2_x_new)/pi*180 + tangent_line_angle
-            if vel2_x_new <0:
+            p2.angle = atan(vel2_y / vel2_x_new) / pi * 180 + tangent_line_angle
+            if vel2_x_new < 0:
                 p2.angle += 180
-        
-
-
-
 
         # 복잡한 충돌은 이 게임에서 불가능하다.

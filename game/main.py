@@ -107,12 +107,11 @@ def new_draw():  # 돌 클래스에서 게임판을 전달받았으므로 draw�
     window.blit(board_img, (150, 50))
     # arrow(-stones[now_select].angle)
     # arrow2(stones[now_select].x, stones[now_select].y, -stones[now_select].angle)
-    arrow(arrow_img, stones[now_select].angle, (stones[now_select].x, stones[now_select].y))
+    arrow(arrow_img, stones[now_select].arrow_angle, (stones[now_select].x, stones[now_select].y))
     for stone in stones:  # 바둑 돌
         if stone.visible:
             stone.draw()
     textprint(score())
-    textprint("선택한 돌의 방향", 800, 530)
     if turn == 0:
         textprint("WHITE TURN", 800, 400)
     else:
@@ -140,22 +139,17 @@ def new_move():
                 if p == q:
                     continue
                 collide(p, q)
-                if not q.visible and p.bycon == q.mass:
-                    stones[q.bycon].check_alive(q.mass)
-                if not p.visible and q.bycon == p.mass:
-                    stones[p.bycon].check_alive(p.mass)
 
 
-def arrow(surface, angle, pivot):
+def arrow(surface, arrow_angle, pivot):
 
-    rotated_image = pygame.transform.rotozoom(surface, -angle, 1)  # Rotate the image.
-    rotated_offset = offset.rotate(angle)  # Rotate the offset vector.
+    rotated_image = pygame.transform.rotozoom(surface, -arrow_angle, 1)  # Rotate the image.
+    rotated_offset = offset.rotate(arrow_angle)  # Rotate the offset vector.
     # Add the offset vector to the center/pivot point to shift the rect.
 
     rect = rotated_image.get_rect(center=pivot + rotated_offset)
     window.blit(rotated_image, rect)  # Blit the rotated image.
     pygame.draw.circle(window, (30, 250, 70), pivot, 3)  # Pivot point.
-    # pygame.draw.rect(window, (30, 250, 70), rect, 1)  # The rect.
 
 
 if __name__ == "__main__":
@@ -168,23 +162,12 @@ if __name__ == "__main__":
         key_event = pygame.key.get_pressed()
         # 방향조절
         if key_event[pygame.K_LEFT]:
-            stones[now_select].angle += -5
+            stones[now_select].arrow_angle += -5
         elif key_event[pygame.K_RIGHT]:
-            stones[now_select].angle -= -5
-        stones[now_select].angle %= 360
+            stones[now_select].arrow_angle -= -5
+        stones[now_select].arrow_angle %= 360
 
-        for stone in stones:
-            if stone.vel > 0.01:
-                ready_printed = False
-                print("Stone", stone.mass, "vel: ", stone.vel)
-                vel = 0
-                newturn = turn
-                break
-        else:
-            if not ready_printed:
-                print("shooting Ready")
-            ready_printed = True
-            vel, now_select, newturn = stoneshooting(stones[now_select], now_select, turn)
+        vel, now_select, newturn = stoneshooting(stones[now_select], now_select, turn)
 
         if vel == -111 and now_select == -111:  # 종료
             break
@@ -194,11 +177,6 @@ if __name__ == "__main__":
             now_select %= 10
 
         turn = newturn
-        if now_select != temp:
-            if stones[temp].team == 0:
-                stones[temp].color = WHITE
-            else:
-                stones[temp].color = GRAY
 
         stones[now_select].vel += vel
         new_move()
@@ -213,11 +191,6 @@ if __name__ == "__main__":
                     if p.mass <= 4 and p.visible:
                         now_select = p.mass
                         break
-            if now_select != temp:
-                if stones[temp].team == 0:
-                    stones[temp].color = WHITE
-                else:
-                    stones[temp].color = GRAY
 
         game_result = score()
         if game_result == "GRAY WIN" or game_result == "WHITE WIN":
