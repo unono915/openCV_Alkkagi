@@ -1,1 +1,18 @@
 __pycache__
+game/anglespeed2.py
+game/cam.py
+game/catch_bug.py
+game/mouse_moving.py
+game/mouse_updown.py
+game/moving_with_key.py
+game/practice.py
+game/rotate.py
+game/rotate2.py
+game/rotate3.py
+game/snake.py
+game/tictactoe.py
+.gitignore
+
+game/main copy 2.py
+game/pingpong.py
+game/sprite_collide.py
