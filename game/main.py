@@ -91,7 +91,7 @@ board_img = pygame.transform.scale(board_img, (500, 500))
 window.blit(board_img, (150, 50))  # 바둑판 위치
 
 # 화살표
-arrow_img = pygame.image.load("assets/arrow4.png").convert_alpha()
+arrow_img = pygame.image.load("assets/arrow6.png").convert_alpha()
 # arrow4_img = pygame.image.load("arrow4.png").convert_alpha()
 # arrow5_img = pygame.image.load("arrow5.png").convert_alpha()
 # a3 (614, 195)
@@ -172,11 +172,11 @@ if __name__ == "__main__":
         elif key_event[pygame.K_RIGHT]:
             stones[now_select].angle -= -5
         stones[now_select].angle %= 360
-        
+
         for stone in stones:
-            if stone.vel >0.01:
+            if stone.vel > 0.01:
                 ready_printed = False
-                print('Stone', stone.mass, "vel: ", stone.vel)
+                print("Stone", stone.mass, "vel: ", stone.vel)
                 vel = 0
                 newturn = turn
                 break
@@ -193,7 +193,6 @@ if __name__ == "__main__":
             now_select += 1
             now_select %= 10
 
-        stones[now_select].color = SELECTED
         turn = newturn
         if now_select != temp:
             if stones[temp].team == 0:
