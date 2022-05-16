@@ -30,6 +30,7 @@ class Stone:  # 처음 돌을 놓는 위치와 레벨을 전달받고, 반지름
 
         if self.x > 650 or self.y > 550 or self.x < 150 or self.y < 50:
             self.visible = 0
+            self.vel = 0
             print("%d died by out of range" % (self.mass + 1))
 
         """if self.x > 650:
@@ -46,7 +47,7 @@ class Stone:  # 처음 돌을 놓는 위치와 레벨을 전달받고, 반지름
             print("%d died by out of range" % (self.mass + 1))"""
 
         self.vel *= 0.95  # 속도의 감소
-        if abs(self.vel) < 0.1: # TODO 정지하도록하는 threshold 조정
+        if abs(self.vel) < 10: # TODO 정지하도록하는 threshold 조정
             self.vel = 0
 
     def draw(self):  # 스크린에 돌을 그린다.
@@ -84,7 +85,7 @@ def collide(p1, p2):
     dy = p2.y - p1.y
 
     dist = hypot(dx, dy)
-    if dist-1 <= p1.radius + p2.radius:
+    if dist+1 <= p1.radius + p2.radius:
         p1.bycon = p2.mass
         p2.bycon = p1.mass
 

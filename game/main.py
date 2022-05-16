@@ -160,6 +160,7 @@ def arrow(surface, angle, pivot):
 
 if __name__ == "__main__":
     clock = pygame.time.Clock()
+    ready_printed = True
     while True:
         # print(pygame.mouse.get_pos())  # 마우스 위치
         temp = now_select
@@ -171,8 +172,19 @@ if __name__ == "__main__":
         elif key_event[pygame.K_RIGHT]:
             stones[now_select].angle -= -5
         stones[now_select].angle %= 360
-
-        vel, now_select, newturn = stoneshooting(stones[now_select], now_select, turn)
+        
+        for stone in stones:
+            if stone.vel >0.01:
+                ready_printed = False
+                print('Stone', stone.mass, "vel: ", stone.vel)
+                vel = 0
+                newturn = turn
+                break
+        else:
+            if not ready_printed:
+                print("shooting Ready")
+            ready_printed = True
+            vel, now_select, newturn = stoneshooting(stones[now_select], now_select, turn)
 
         if vel == -111 and now_select == -111:  # 종료
             break

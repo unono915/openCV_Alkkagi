@@ -16,6 +16,7 @@ def stoneshooting(stone, selectstone, turn):
             if event.key == K_ESCAPE:
                 return -111, -111, turn
 
+            
             # 돌 선택
             if event.key == K_1:  # K_0 == 48 ~
                 now_select = 0 + turn * 5
