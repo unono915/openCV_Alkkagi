@@ -1,6 +1,9 @@
 import pygame
 import sys
 
+import threading
+from handGesture import cval
+
 from anglespeed import *
 from Screen import *
 from Stone import *
@@ -25,22 +28,6 @@ dt = 1.0 / FPS
 turn = 0
 num_of_stone = 10  # 돌의 개수
 now_select = 0  # 현재 선택된 돌의 번호
-
-"""
-realmain의 구조와 movement_substpes, FPS, dt 등의 상수는 Gravity 4 코드에서 일부 참조했다.
-<Gravity Simulation - 4.0.0> 
-https://www.pygame.org/project/617/4587 
-http://geometrian.com/programming/index.php 
-http://www.geometrian.com/data/programming/projects/Gravitation/Simulation%204.0.0/Gravity4.zip
-
-pygame에서 한글 출력하는 방법은 빗자루네 블로그에서 참조했다.
-<pygame 한글 출력>
-http://imp17.com/tc/myevan/133?fbclid=IwAR3C8PL16p5Vr0D5wMpNGFKSnfzTk6UNK8OM2sCO2iihFXXONeofkA03yPQ
-
-anglespeed의 구조는 일부 pygame-physics-simulation에서 가져왔다.
-<pygame-physics-simulation>
-http://www.petercollingridge.co.uk/tutorials/pygame-physics-simulation/
-"""
 
 
 def textprint(printobj, xcord=400, ycord=30):
@@ -92,11 +79,7 @@ window.blit(board_img, (150, 50))  # 바둑판 위치
 
 # 화살표
 arrow_img = pygame.image.load("assets/arrow6.png").convert_alpha()
-# arrow4_img = pygame.image.load("arrow4.png").convert_alpha()
-# arrow5_img = pygame.image.load("arrow5.png").convert_alpha()
-# a3 (614, 195)
-# a4 (633, 102)
-# a5 (569, 302)
+
 
 arrow_img = pygame.transform.scale(arrow_img, (60, 15))
 offset = pygame.math.Vector2(arrow_img.get_width() // 2, 0)  # 벡터
@@ -153,6 +136,10 @@ def arrow(surface, arrow_angle, pivot):
 
 
 if __name__ == "__main__":
+    # cap = cv2.VideoCapture(0)
+    t = threading.Thread(target=cval)
+    t.start()
+
     clock = pygame.time.Clock()
     ready_printed = True
     while True:
