@@ -5,6 +5,10 @@ from pygame.locals import *
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+YELLOW = (255, 255, 0)
+
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
 
 
 class Screen:  # 스크린을 선언하고 display.set_caption까지 호출함
@@ -24,7 +28,16 @@ def textprint(window, fontObj, printobj, xcord=400, ycord=30):
     window.blit(textSurfaceObj, textRectObj)
 
 
-def score(stones, now_select):
+def print_end(window, game_result):
+    # 게임 오버 메시지
+    game_font = pygame.font.Font(None, 40)
+    msg = game_font.render(game_result, True, YELLOW)  # 노란색
+    msg_rect = msg.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+    window.blit(msg, msg_rect)
+    pygame.time.delay(2000)
+
+
+def score_text(stones, now_select):
     scored = dict()
     for stone in stones:
         scored.setdefault(stone.team, 0)
@@ -61,7 +74,13 @@ def new_move(stones, dt=1 / 60):
 
 
 # 돌 클래스에서 게임판을 전달받았으므로 draw에서 surface안써줘도됨
-def new_draw(window, stones, now_select, board_img, arrow_img, fontObj, turn, offset):
+def new_draw(window, contents, now_select, turn):
+    stones = contents["stones"]
+    board_img = contents["board_img"]
+    arrow_img = contents["arrow_img"]
+    fontObj = contents["fontObj"]
+    offset = contents["offset"]
+
     window.fill((0, 0, 0))
     window.blit(board_img, (150, 50))
 
@@ -69,7 +88,7 @@ def new_draw(window, stones, now_select, board_img, arrow_img, fontObj, turn, of
     for stone in stones:  # 바둑 돌
         if stone.visible:
             stone.draw()
-    textprint(window, fontObj, score(stones, now_select))
+    textprint(window, fontObj, score_text(stones, now_select))
     if turn == 0:
         textprint(window, fontObj, "WHITE TURN", 800, 400)
     else:
@@ -92,21 +111,22 @@ def new_draw(window, stones, now_select, board_img, arrow_img, fontObj, turn, of
     pygame.display.flip()
 
 
-def stoneshooting(stone, selectstone, turn):
-    plus_vel = 250  # 한번의 클릭으로 더해지는 속도
-    # plus_ang = -10  # 한번의 클릭으로 생겨나는 각도
-    now_select = selectstone
-    # stone = STONE
+def set_angle(stones, now_select):
+    key_event = pygame.key.get_pressed()
+    # 방향조절
+    if key_event[pygame.K_LEFT]:
+        stones[now_select].arrow_angle += -5
+    elif key_event[pygame.K_RIGHT]:
+        stones[now_select].arrow_angle -= -5
+    stones[now_select].arrow_angle %= 360
 
-    for event in pygame.event.get():  # 키보드 입력을 받는다.
-        if event.type == QUIT:
-            return -111, -111, turn
+
+def select_stone(events, now_select, turn):
+    for event in events:  # 키보드 입력을 받는다.
         if event.type == KEYDOWN:
-            # ESC 누르면 종료
             if event.key == K_ESCAPE:
-                return -111, -111, turn
+                return -111
 
-            # 돌 선택
             if K_1 <= event.key <= K_5:  # 1,2,3,4,5로 돌 선택
                 now_select = (event.key - K_1) + turn * 5
 
@@ -115,24 +135,33 @@ def stoneshooting(stone, selectstone, turn):
                 now_select %= 5
                 now_select += turn * 5
 
-            elif event.key == K_UP:  # 세기 증가
+        if event.type == QUIT:
+            return -111
+
+    return now_select
+
+
+def shoot(events, stone, turn):
+    for event in events:  # 키보드 입력을 받는다.
+        if event.type == KEYDOWN:
+            if event.key == K_UP:  # 세기 증가
                 if stone.hidvel < 1000:
-                    stone.hidvel += plus_vel
+                    stone.hidvel += 250
 
             elif event.key == K_DOWN:  # 세기 감소
                 if stone.hidvel > 0:
-                    stone.hidvel -= plus_vel
+                    stone.hidvel -= 250
 
             # 스페이스바를 입력받았을 때 진행하고 있는 상태라면 설정한 속도를 저장한 후 돌의 속도와 각도를 다시 0으로 초기화한다.
             elif event.key == K_SPACE:
                 stone.angle = stone.arrow_angle
-                a = stone.hidvel
+                v = stone.hidvel
                 stone.hidvel = 0
                 stone.bycon = -1
                 turn = 1 - turn
-                return a, now_select, turn
+                return v, turn
 
-    return 0, now_select, turn
+    return 0, turn
 
 
 def collide(p1, p2):
