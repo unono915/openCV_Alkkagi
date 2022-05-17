@@ -1,21 +1,17 @@
 import pygame
 import sys
 
+# cam
 import threading
 from handGesture import cval
 
-from anglespeed import *
-from Screen import *
-from Stone import *
+# game
+from Stone import Stone
+from game_features import Screen, score, stoneshooting, new_draw, new_move
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-GRAY = (128, 128, 128)
 YELLOW = (255, 255, 0)
-SELECTED = (200, 100, 50)
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -28,28 +24,6 @@ dt = 1.0 / FPS
 turn = 0
 num_of_stone = 10  # 돌의 개수
 now_select = 0  # 현재 선택된 돌의 번호
-
-
-def textprint(printobj, xcord=400, ycord=30):
-    textSurfaceObj = fontObj.render(str(printobj), True, WHITE, BLACK)
-    textRectObj = textSurfaceObj.get_rect()
-    textRectObj.center = (xcord, ycord)
-    window.blit(textSurfaceObj, textRectObj)
-
-
-def score():
-    scored = dict()
-    for stone in stones:
-        scored.setdefault(stone.team, 0)
-        sum = stone.visible
-        scored[stone.team] = scored[stone.team] + sum
-
-    if scored[0] == 0:
-        return "GRAY WIN"
-    elif scored[1] == 0:
-        return "WHITE WIN"
-    else:
-        return "White : " + str(scored[0]) + " vs Gray :" + str(scored[1]) + "\n" + "Selection :" + str(now_select + 1)
 
 
 icon = pygame.Surface((1, 1))
@@ -79,60 +53,8 @@ window.blit(board_img, (150, 50))  # 바둑판 위치
 
 # 화살표
 arrow_img = pygame.image.load("assets/arrow6.png").convert_alpha()
-
-
 arrow_img = pygame.transform.scale(arrow_img, (60, 15))
 offset = pygame.math.Vector2(arrow_img.get_width() // 2, 0)  # 벡터
-
-
-def new_draw():  # 돌 클래스에서 게임판을 전달받았으므로 draw에서 surface안써줘도됨
-    window.fill((0, 0, 0))
-    window.blit(board_img, (150, 50))
-    # arrow(-stones[now_select].angle)
-    # arrow2(stones[now_select].x, stones[now_select].y, -stones[now_select].angle)
-    arrow(arrow_img, stones[now_select].arrow_angle, (stones[now_select].x, stones[now_select].y))
-    for stone in stones:  # 바둑 돌
-        if stone.visible:
-            stone.draw()
-    textprint(score())
-    if turn == 0:
-        textprint("WHITE TURN", 800, 400)
-    else:
-        textprint("GRAY TURN", 800, 400)
-
-    for stone in stones:
-        if stone.mass == 0:
-            textprint("------- WHITE -------", 800, 100)
-        if stone.mass == 5:
-            textprint("-------  GRAY -------", 800, 230)
-        if not stone.visible:
-            textprint("%d 은 죽었습니다." % (stone.mass + 1), 800, 120 + stone.mass * 20 + (stone.mass // 5) * 30)
-        else:
-            textprint("%d 은 살아있습니다." % (stone.mass + 1), 800, 120 + stone.mass * 20 + (stone.mass // 5) * 30)
-
-    pygame.display.flip()
-
-
-def new_move():
-    for i in range(movement_substeps):
-        for p in stones:
-            if p.visible:
-                p.move(dt / float(movement_substeps))  # 보일 때만 움직임
-            for q in stones:
-                if p == q:
-                    continue
-                collide(p, q)
-
-
-def arrow(surface, arrow_angle, pivot):
-
-    rotated_image = pygame.transform.rotozoom(surface, -arrow_angle, 1)  # Rotate the image.
-    rotated_offset = offset.rotate(arrow_angle)  # Rotate the offset vector.
-    # Add the offset vector to the center/pivot point to shift the rect.
-
-    rect = rotated_image.get_rect(center=pivot + rotated_offset)
-    window.blit(rotated_image, rect)  # Blit the rotated image.
-    pygame.draw.circle(window, (30, 250, 70), pivot, 3)  # Pivot point.
 
 
 if __name__ == "__main__":
@@ -141,9 +63,7 @@ if __name__ == "__main__":
     t.start()
 
     clock = pygame.time.Clock()
-    ready_printed = True
     while True:
-        # print(pygame.mouse.get_pos())  # 마우스 위치
         temp = now_select
 
         key_event = pygame.key.get_pressed()
@@ -164,10 +84,12 @@ if __name__ == "__main__":
             now_select %= 10
 
         turn = newturn
-
         stones[now_select].vel += vel
-        new_move()
-        new_draw()
+
+        # 움직임
+
+        new_move(stones)
+        new_draw(window, stones, now_select, board_img, arrow_img, fontObj, turn, offset)
         if abs(turn * 9 - now_select) >= 5:
             for p in stones:
                 if turn == 1:
@@ -179,7 +101,7 @@ if __name__ == "__main__":
                         now_select = p.mass
                         break
 
-        game_result = score()
+        game_result = score(stones, now_select)
         if game_result == "GRAY WIN" or game_result == "WHITE WIN":
             # 게임 오버 메시지
             game_font = pygame.font.Font(None, 40)
