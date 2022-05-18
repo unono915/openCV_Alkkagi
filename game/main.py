@@ -8,5 +8,6 @@ if __name__ == "__main__":
     cv_thread = threading.Thread(target=cval)
     cv_thread.start()
     game_main()
+
     # game_thread = threading.Thread(target=game_main)
     # game_thread.start()
