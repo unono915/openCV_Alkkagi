@@ -136,7 +136,6 @@ def arrow(surface, arrow_angle, pivot):
 
 
 if __name__ == "__main__":
-    # cap = cv2.VideoCapture(0)
     t = threading.Thread(target=cval)
     t.start()
 
