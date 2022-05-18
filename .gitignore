@@ -16,6 +16,3 @@ game/tictactoe.py
 game/main copy 2.py
 game/pingpong.py
 game/sprite_collide.py
-game/game_init.py
-game/game_main.py
-game/main2.py
