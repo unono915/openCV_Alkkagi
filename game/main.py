@@ -1,12 +1,16 @@
 import threading
+from queue import Queue
+from algame import game_main
 from handGesture import cval
-from game import game_main
 
+
+queue = Queue()
 
 if __name__ == "__main__":
     # cap = cv2.VideoCapture(0)
-    cv_thread = threading.Thread(target=cval)
+    cv_thread = threading.Thread(target=cval, args=(queue,))
     cv_thread.start()
-    game_main()
+    game_main(queue)
+
     # game_thread = threading.Thread(target=game_main)
     # game_thread.start()

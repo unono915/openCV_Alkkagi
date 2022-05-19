@@ -1,7 +1,7 @@
 import cv2
 import mediapipe as mp
 import math
-from time import time
+from time import time, sleep
 from pynput.keyboard import Key, Controller
 
 keyboard = Controller()
@@ -11,7 +11,7 @@ hands = mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.8, min_tracki
 cap = cv2.VideoCapture(0)
 
 
-def cval():
+def cval(queue):
     # ready가 3이되면 슈팅 가능
     ready = 0
     ready_tf = False
@@ -54,7 +54,7 @@ def cval():
                 ready += 1 / 20
             else:
                 ready = 0
-            if ready > 3:
+            if ready > 2:
                 start_dist = d1_to_2
                 ready_tf = True
                 print("Start")
@@ -75,8 +75,11 @@ def cval():
 
                 if time() - shootingtime > 1:
                     print(max_power)
-                    keyboard.press(Key.space)
-                    keyboard.release(Key.space)
+                    queue.put(max_power)
+                    # sleep(0.01)
+                    if max_power:
+                        keyboard.press(Key.space)
+                        keyboard.release(Key.space)
                     # max_power -> vel으로 전달해야함
                     ready_tf = False
                     shootingtime = 0
