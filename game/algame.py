@@ -60,7 +60,7 @@ def init_window():
     }
 
 
-def game_main():
+def game_main(queue):
     turn = 0
     turn_changed = False
     now_select = 0  # 현재 선택된 돌의 번호
@@ -84,7 +84,13 @@ def game_main():
 
         prev_select[turn] = now_select
         turn = newturn
-        stones[now_select].vel += vel
+        finger_power = 0
+        try:
+            finger_power = queue.get_nowait()
+        except Exception:
+            pass
+        stones[now_select].vel += finger_power * 3
+        # stones[now_select].vel += vel
 
         # 움직임
         new_move(stones)
