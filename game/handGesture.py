@@ -24,7 +24,7 @@ def cval(queue):
         success, img = cap.read()
         if not success:
             continue
-        img = cv2.cvtColor(cv2.flip(img, 1), cv2.COLOR_BGR2RGB)
+        img = cv2.cvtColor(cv2.flip(cv2.flip(img, 1),0), cv2.COLOR_BGR2RGB)
         results = hands.process(img)
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 

@@ -7,6 +7,18 @@ mp_hands = mp.solutions.hands
  
 cap = cv2.VideoCapture(0)
  
+def angle_0to5(a,b):
+    dy = a.y-b.y
+    dx = a.x-b.x
+    if(dx!=0):
+        angle = math.atan(dy/dx)*180/math.pi
+    if(dx<0.0):
+        angle += 180.0
+    else:
+        if(dy<0.0):
+            angle += 360.0
+    print(angle)
+
 with mp_hands.Hands(
     max_num_hands=1,
     min_detection_confidence=0.5,
@@ -16,7 +28,7 @@ with mp_hands.Hands(
         success, image = cap.read()
         if not success:
             continue
-        image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
+        image = cv2.cvtColor(cv2.flip(cv2.flip(image, 1),0), cv2.COLOR_BGR2RGB)
  
         results = hands.process(image)
  
@@ -30,6 +42,7 @@ with mp_hands.Hands(
                 # finger1 = int(hand_landmarks.landmark[4].x * 100 )
                 # finger2 = int(hand_landmarks.landmark[8].x * 100 )
                 dist = abs(math.dist([hand_landmarks.landmark[4].x, hand_landmarks.landmark[4].y], [hand_landmarks.landmark[8].x, hand_landmarks.landmark[8].y]))
+                angle_0to5(hand_landmarks.landmark[0],hand_landmarks.landmark[5])
                 cv2.putText(
                     # image, text='f1=%d f2=%d dist=%d ' % (finger1,finger2,dist), org=(10, 30),
                     image, text='dist=%f ' % (dist), org=(10, 30),
