@@ -53,7 +53,7 @@ def init_window():
 
     # 점선
     dotline_img = pygame.image.load("assets/dotline.png").convert_alpha()
-    print(dotline_img.get_size())
+    # print(dotline_img.get_size())
     dotline_img = pygame.transform.scale(dotline_img, (650, 160))
     dotline_offset = pygame.math.Vector2(dotline_img.get_width() // 2, 0)  # 벡터
 
@@ -66,7 +66,6 @@ def init_window():
         "dotline_offset": dotline_offset,
         "fontObj": fontObj,
     }
-    print("game initiated")
 
 
 def game_main(queue):
@@ -84,12 +83,7 @@ def game_main(queue):
         if now_select == -111:  # 종료
             break
         elif now_select == 123:
-            pygame.quit()
-            init_window()
-            turn = 0
-            turn_changed = False
-            now_select = 0  # 현재 선택된 돌의 번호
-            continue
+            game_main(queue)
 
         vel, newturn = shoot(events, stones[now_select], turn)  # 슛
         turn_changed = turn != newturn
