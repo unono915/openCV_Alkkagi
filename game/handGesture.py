@@ -10,6 +10,17 @@ mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.8, min_tracking_confidence=0.8)
 cap = cv2.VideoCapture(0)
 
+def angle_0to5(a,b):
+    dy = a.y-b.y
+    dx = a.x-b.x
+    if(dx!=0):
+        angle = math.atan(dy/dx)*180/math.pi
+    if(dx<0.0):
+        angle += 180.0
+    else:
+        if(dy<0.0):
+            angle += 360.0
+    return(angle)
 
 def cval(queue):
     # ready가 3이되면 슈팅 가능
@@ -47,8 +58,6 @@ def cval(queue):
                 )
                 d0_to_1 = d0_to_1 * 1000.0
 
-                # print("%d, %d, %d" % (d1_to_2, d0_to_1, d1_to_2/d0_to_1))
-
             # 3초동안 Okay손모양하고 있으면 Ready완료
             if d1_to_2 < 100 and not ready_tf:
                 ready += 1 / 20
@@ -57,13 +66,14 @@ def cval(queue):
             if ready > 2:
                 start_dist = d1_to_2
                 ready_tf = True
+                shoot_angle = angle_0to5(hand_landmarks.landmark[0],hand_landmarks.landmark[5])
+                print(shoot_angle)
                 print("Start")
 
             # 2초안에 슈팅
             if ready_tf:
                 if shootingtime == 0:
                     shootingtime = time()
-                # print("%d, %d, %d" % (d1_to_2, d0_to_1, d1_to_2/d0_to_1))
                 if d1_to_2 > 100:
                     shooting_s += 1
                 if d1_to_2 > max_dist:
@@ -87,8 +97,6 @@ def cval(queue):
                     max_dist = 0
                     max_power = 0
 
-        # cv2.rectangle(img, (50, 350), (600, 450), (175, 0, 175), cv2.FILLED)
-        # cv2.putText(img, "finalText", (60, 430), cv2.FONT_HERSHEY_PLAIN, 5, (255, 255, 255), 5)
         cv2.imshow("Image", img)
         if cv2.waitKey(1) == ord("q"):
             break
