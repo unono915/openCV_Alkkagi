@@ -49,15 +49,24 @@ def init_window():
     # 화살표
     arrow_img = pygame.image.load("assets/arrow6.png").convert_alpha()
     arrow_img = pygame.transform.scale(arrow_img, (60, 15))
-    offset = pygame.math.Vector2(arrow_img.get_width() // 2, 0)  # 벡터
+    arrow_offset = pygame.math.Vector2(arrow_img.get_width() // 2, 0)  # 벡터
+
+    # 점선
+    dotline_img = pygame.image.load("assets/dotline.png").convert_alpha()
+    print(dotline_img.get_size())
+    dotline_img = pygame.transform.scale(dotline_img, (650, 160))
+    dotline_offset = pygame.math.Vector2(dotline_img.get_width() // 2, 0)  # 벡터
 
     contents = {
         "stones": stones,
         "board_img": board_img,
         "arrow_img": arrow_img,
-        "offset": offset,
+        "dotline_img": dotline_img,
+        "arrow_offset": arrow_offset,
+        "dotline_offset": dotline_offset,
         "fontObj": fontObj,
     }
+    print("game initiated")
 
 
 def game_main(queue):
@@ -74,6 +83,14 @@ def game_main(queue):
         now_select = select_stone(events, now_select, turn)  # 돌 결정
         if now_select == -111:  # 종료
             break
+        elif now_select == 123:
+            pygame.quit()
+            init_window()
+            turn = 0
+            turn_changed = False
+            now_select = 0  # 현재 선택된 돌의 번호
+            continue
+
         vel, newturn = shoot(events, stones[now_select], turn)  # 슛
         turn_changed = turn != newturn
 

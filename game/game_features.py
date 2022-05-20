@@ -10,7 +10,8 @@ YELLOW = (255, 255, 0)
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
-
+########################################################################################
+# 그리기 관련
 class Screen:  # 스크린을 선언하고 display.set_caption까지 호출함
     def __init__(self, name, width=900, height=600, color=(255, 255, 255)):
         self.width = width
@@ -52,15 +53,21 @@ def score_text(stones, now_select):
         return "White : " + str(scored[0]) + " vs Gray :" + str(scored[1]) + "\n" + "Selection :" + str(now_select + 1)
 
 
-def arrow(window, surface, arrow_angle, pivot, offset):
+def arrow(window, arrow_angle, pivot, arrow_img, arrow_offset, dotline_img, dotline_offset):
 
-    rotated_image = pygame.transform.rotozoom(surface, -arrow_angle, 1)  # Rotate the image.
-    rotated_offset = offset.rotate(arrow_angle)  # Rotate the offset vector.
+    rotated_dotline = pygame.transform.rotozoom(dotline_img, -arrow_angle, 1)  # Rotate the image.
+    rotated_dotline_offset = dotline_offset.rotate(arrow_angle)  # Rotate the offset vector.
     # Add the offset vector to the center/pivot point to shift the rect.
 
-    rect = rotated_image.get_rect(center=pivot + rotated_offset)
-    window.blit(rotated_image, rect)  # Blit the rotated image.
-    pygame.draw.circle(window, (30, 250, 70), pivot, 3)  # Pivot point.
+    rect1 = rotated_dotline.get_rect(center=pivot + rotated_dotline_offset)
+    window.blit(rotated_dotline, rect1)  # Blit the rotated image.
+
+    rotated_arrow = pygame.transform.rotozoom(arrow_img, -arrow_angle, 1)  # Rotate the image.
+    rotated_arrow_offset = arrow_offset.rotate(arrow_angle)  # Rotate the offset vector.
+    # Add the offset vector to the center/pivot point to shift the rect.
+
+    rect2 = rotated_arrow.get_rect(center=pivot + rotated_arrow_offset)
+    window.blit(rotated_arrow, rect2)  # Blit the rotated image.
 
 
 def new_move(stones, dt=1 / 60):
@@ -79,12 +86,23 @@ def new_draw(window, contents, now_select, turn):
     board_img = contents["board_img"]
     arrow_img = contents["arrow_img"]
     fontObj = contents["fontObj"]
-    offset = contents["offset"]
+    arrow_offset = contents["arrow_offset"]
+    dotline_offset = contents["dotline_offset"]
+    dotline_img = contents["dotline_img"]
 
     window.fill((0, 0, 0))
     window.blit(board_img, (150, 50))
 
-    arrow(window, arrow_img, stones[now_select].arrow_angle, (stones[now_select].x, stones[now_select].y), offset)
+    arrow(
+        window,
+        stones[now_select].arrow_angle,
+        (stones[now_select].x, stones[now_select].y),
+        arrow_img,
+        arrow_offset,
+        dotline_img,
+        dotline_offset,
+    )
+    # arrow(window, arrow_img, stones[now_select].arrow_angle, (stones[now_select].x, stones[now_select].y), offset)
     for stone in stones:  # 바둑 돌
         if stone.visible:
             stone.draw()
@@ -111,6 +129,10 @@ def new_draw(window, contents, now_select, turn):
     pygame.display.flip()
 
 
+########################################################################################
+# 돌 관련
+
+
 def set_angle(stones, now_select):
     key_event = pygame.key.get_pressed()
     # 방향조절
@@ -131,6 +153,7 @@ def select_stone(events, now_select, turn):
                 now_select = (event.key - K_1) + turn * 5
 
             elif event.key == K_r:  # r로 다음 돌 선택
+                return 123
                 now_select += 1
                 now_select %= 5
                 now_select += turn * 5
