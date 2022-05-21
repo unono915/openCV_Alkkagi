@@ -7,7 +7,6 @@ from handGesture import cval
 queue = Queue()
 
 if __name__ == "__main__":
-    # cap = cv2.VideoCapture(0)
     cv_thread = threading.Thread(target=cval, args=(queue,))
     cv_thread.start()
     game_main(queue)

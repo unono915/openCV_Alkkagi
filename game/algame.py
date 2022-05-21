@@ -81,19 +81,20 @@ def game_main(queue):
         try:  # handGesture 에서 queue를 이용해 값 가져오기
             recieve = queue.get_nowait()
         except Exception:
-            recieve = {"shoot": False, "shoot_power": 0, "shoot_angle": None}
+            recieve = {"shoot_power": 0, "shoot_angle": None}
 
-        if recieve["shoot_angle"] != None:  # 각도가 있을 경우 (0도도 포함)
+        # 각도가 있을 경우 (0도도 포함)
+        if recieve["shoot_angle"] != None:
             stones[now_select].arrow_angle = recieve["shoot_angle"]
 
         newturn = turn
-        if recieve["shoot"]:  # 발사(손튕기기)한 경우
+        # 발사(손튕기기)한 경우
+        if recieve["shoot_power"]:
             stones[now_select].angle = stones[now_select].arrow_angle
             stones[now_select].vel = recieve["shoot_power"]
             turn_changed = True
             newturn = 1 - turn
 
-        # set_angle(stones, now_select)  # 각도 결정
         events = pygame.event.get()
         now_select = select_stone(events, now_select, turn)  # 돌 결정
         if now_select == -111:  # 종료
@@ -101,27 +102,21 @@ def game_main(queue):
         elif now_select == 123:
             game_main(queue)
 
-        """vel, newturn = shoot(events, stones[now_select], turn)  # 슛
-        turn_changed = turn != newturn"""
-
         if stones[now_select].is_dead():
             now_select += 1
             if now_select == 5 or now_select == 10:
                 now_select -= 5
 
         prev_select[turn] = now_select
-        # turn = newturn
-
-        """finger_power = 0
-        stones[now_select].vel += finger_power
-        # stones[now_select].vel += vel"""
 
         # 움직임
         new_move(stones)
         new_draw(window, contents, now_select, turn)
 
         if turn_changed:
+            print("turn_changed")
             now_select = prev_select[newturn]
+            turn = newturn
             turn_changed = False
 
         game_result = score_text(stones, now_select)

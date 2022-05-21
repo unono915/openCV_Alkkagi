@@ -35,11 +35,12 @@ def cval(queue):
 
     while cap.isOpened():
 
-        send = {"shoot": False, "shoot_power": 0, "shoot_angle": None}
+        send = {"shoot_power": 0, "shoot_angle": None}
 
         success, img = cap.read()
         if not success:
             continue
+        # img = cv2.cvtColor(cv2.flip(img, 1), cv2.COLOR_BGR2RGB)
         img = cv2.cvtColor(cv2.flip(cv2.flip(img, 1), 0), cv2.COLOR_BGR2RGB)
         results = hands.process(img)
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
@@ -91,22 +92,15 @@ def cval(queue):
                         max_power = max_dist - start_dist
 
                 if time() - shootingtime > 1:
-                    send["shoot"] = True
                     send["shoot_power"] = max_power * 3
-                    """print(max_power)
-                    queue.put(max_power)
-                    # sleep(0.01)
-                    if max_power:
-                        keyboard.press(Key.space)
-                        keyboard.release(Key.space)"""
-                    # max_power -> vel으로 전달해야함
+
                     ready_tf = False
                     shootingtime = 0
                     shooting_s = 0
                     max_dist = 0
                     max_power = 0
 
-                queue.put(send)
+            queue.put(send)
 
         cv2.imshow("Image", img)
         if cv2.waitKey(1) == ord("q"):

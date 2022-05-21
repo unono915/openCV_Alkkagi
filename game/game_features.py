@@ -82,25 +82,20 @@ def new_move(stones, dt=1 / 60):
 
 # 돌 클래스에서 게임판을 전달받았으므로 draw에서 surface안써줘도됨
 def new_draw(window, contents, now_select, turn):
-    stones = contents["stones"]
-    board_img = contents["board_img"]
-    arrow_img = contents["arrow_img"]
     fontObj = contents["fontObj"]
-    arrow_offset = contents["arrow_offset"]
-    dotline_offset = contents["dotline_offset"]
-    dotline_img = contents["dotline_img"]
+    stones = contents["stones"]
 
     window.fill((0, 0, 0))
-    window.blit(board_img, (150, 50))
+    window.blit(contents["board_img"], (150, 50))
 
     arrow(
         window,
         stones[now_select].arrow_angle,
         (stones[now_select].x, stones[now_select].y),
-        arrow_img,
-        arrow_offset,
-        dotline_img,
-        dotline_offset,
+        contents["arrow_img"],
+        contents["arrow_offset"],
+        contents["dotline_img"],
+        contents["dotline_offset"],
     )
     # arrow(window, arrow_img, stones[now_select].arrow_angle, (stones[now_select].x, stones[now_select].y), offset)
     for stone in stones:  # 바둑 돌
@@ -129,20 +124,6 @@ def new_draw(window, contents, now_select, turn):
     pygame.display.flip()
 
 
-########################################################################################
-# 돌 관련
-
-
-def set_angle(stones, now_select):
-    key_event = pygame.key.get_pressed()
-    # 방향조절
-    if key_event[pygame.K_LEFT]:
-        stones[now_select].arrow_angle += -5
-    elif key_event[pygame.K_RIGHT]:
-        stones[now_select].arrow_angle -= -5
-    stones[now_select].arrow_angle %= 360
-
-
 def select_stone(events, now_select, turn):
     for event in events:  # 키보드 입력을 받는다.
         if event.type == KEYDOWN:
@@ -154,37 +135,11 @@ def select_stone(events, now_select, turn):
 
             elif event.key == K_r:  # r로 다음 돌 선택
                 return 123
-                now_select += 1
-                now_select %= 5
-                now_select += turn * 5
 
         if event.type == QUIT:
             return -111
 
     return now_select
-
-
-def shoot(events, stone, turn):
-    for event in events:  # 키보드 입력을 받는다.
-        if event.type == KEYDOWN:
-            if event.key == K_UP:  # 세기 증가
-                if stone.hidvel < 1000:
-                    stone.hidvel += 250
-
-            elif event.key == K_DOWN:  # 세기 감소
-                if stone.hidvel > 0:
-                    stone.hidvel -= 250
-
-            # 스페이스바를 입력받았을 때 진행하고 있는 상태라면 설정한 속도를 저장한 후 돌의 속도와 각도를 다시 0으로 초기화한다.
-            elif event.key == K_SPACE:
-                stone.angle = stone.arrow_angle
-                v = stone.hidvel
-                stone.hidvel = 0
-                stone.bycon = -1
-                newturn = 1 - turn
-                return v, newturn
-
-    return 0, turn
 
 
 def collide(p1, p2):
@@ -221,11 +176,6 @@ def collide(p1, p2):
         p1.vel = hypot(vel1_x_new, vel1_y)
         p2.vel = hypot(vel2_x_new, vel2_y)
 
-        """if vel1_x_new == 0 and vel2_x_new == 0:
-            print(p1.mass, p1.vel, p2.mass, p2.vel)
-            p1.divide(p2)
-            return"""
-
         if vel1_x_new == 0:
             # print(p1.mass, " angle:", p1.angle, " / ", p2.mass, " angle:", p2.angle, "\n")
             if vel1_y >= 0:
@@ -246,5 +196,3 @@ def collide(p1, p2):
             p2.angle = atan(vel2_y / vel2_x_new) / pi * 180 + tangent_line_angle
             if vel2_x_new < 0:
                 p2.angle += 180
-
-        # 복잡한 충돌은 이 게임에서 불가능하다.
