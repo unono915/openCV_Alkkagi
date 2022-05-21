@@ -21,7 +21,7 @@ def angle_0to5(a, b):
     else:
         if dy < 0.0:
             angle += 360.0
-    return angle
+    return (angle + 180) % 360
 
 
 def cval(queue):
@@ -32,9 +32,9 @@ def cval(queue):
     shooting_s = 0
     max_dist = 0
     max_power = 0
-
+    cnt = 0
     while cap.isOpened():
-
+        cnt += 1
         send = {"shoot_power": 0, "shoot_angle": None}
 
         success, img = cap.read()
@@ -56,16 +56,10 @@ def cval(queue):
                 )
                 d1_to_2 = d1_to_2 * 1000.0
 
-                d0_to_1 = abs(
-                    math.dist(
-                        (hand_landmarks.landmark[0].x, hand_landmarks.landmark[0].y),
-                        (hand_landmarks.landmark[1].x, hand_landmarks.landmark[1].y),
-                    )
-                )
-
-                shoot_angle = angle_0to5(hand_landmarks.landmark[0], hand_landmarks.landmark[5])
-                send["shoot_angle"] = shoot_angle
-                # print(shoot_angle, "도")
+                if cnt%2:
+                    shoot_angle = angle_0to5(hand_landmarks.landmark[0], hand_landmarks.landmark[5])
+                    send["shoot_angle"] = shoot_angle
+                    # print(shoot_angle, "도")
 
             # 3초동안 Okay손모양하고 있으면 Ready완료
             if d1_to_2 < 100 and not ready_tf:
@@ -88,8 +82,8 @@ def cval(queue):
                     max_dist = d1_to_2
                     max_shooting_s = shooting_s
                     if max_shooting_s != 0:
-                        # max_power = (max_dist-start_dist)/max_shooting_s
-                        max_power = max_dist - start_dist
+                        max_power = (max_dist-start_dist)/max_shooting_s
+                        #max_power = max_dist - start_dist
 
                 if time() - shootingtime > 1:
                     send["shoot_power"] = max_power * 3
