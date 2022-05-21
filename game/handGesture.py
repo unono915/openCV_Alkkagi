@@ -56,7 +56,7 @@ def cval(queue):
                 )
                 d1_to_2 = d1_to_2 * 1000.0
 
-                if cnt%2:
+                if cnt % 2:
                     shoot_angle = angle_0to5(hand_landmarks.landmark[0], hand_landmarks.landmark[5])
                     send["shoot_angle"] = shoot_angle
                     # print(shoot_angle, "도")
@@ -67,7 +67,7 @@ def cval(queue):
             else:
                 ready = 0
             if ready > 2:
-                d0_to_1 = d0_to_1 * 1000.0
+                # d0_to_1 = d0_to_1 * 1000.0
                 start_dist = d1_to_2
                 ready_tf = True
                 print("Start")
@@ -82,8 +82,8 @@ def cval(queue):
                     max_dist = d1_to_2
                     max_shooting_s = shooting_s
                     if max_shooting_s != 0:
-                        max_power = (max_dist-start_dist)/max_shooting_s
-                        #max_power = max_dist - start_dist
+                        max_power = (max_dist - start_dist) / max_shooting_s
+                        # max_power = max_dist - start_dist
 
                 if time() - shootingtime > 1:
                     send["shoot_power"] = max_power * 3
