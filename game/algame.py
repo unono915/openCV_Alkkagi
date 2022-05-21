@@ -71,6 +71,7 @@ def init_window():
 
 def start_screen():
     fontObj = contents["fontObj"]
+    textprint(window, pygame.font.Font("assets/NanumSquareRoundB.ttf", 30), "OpenCV 알까기", 400, 200)
     textprint(window, fontObj, "1. Single Play", 400, 300)
     textprint(window, fontObj, "2. Multi Play", 400, 350)
     textprint(window, fontObj, "3. Exit", 400, 400)
@@ -98,21 +99,7 @@ def single_game(queue):
     window.blit(contents["board_img"], (150, 50))  # 바둑판 위치
     clock = pygame.time.Clock()
     while True:
-        if turn == 0:
-            sleep(2)
-            me = random.randint(0, 4)
-            while stones[me].is_dead():
-                me = me - 4 if target == 4 else me + 1
-            target = random.randint(5, 9)
-            while stones[target].is_dead():
-                target = target - 4 if target == 9 else target + 1
-
-            stones[target].angle = stones[target].arrow_angle = angle_0to5(stones[me], stones[target])
-            stones[target].vel = random.random() * 1000
-            turn = 1 - turn
-            continue
-
-        else:
+        if turn == 1:
             try:  # handGesture 에서 queue를 이용해 값 가져오기
                 recieve = queue.get_nowait()
             except Exception:
@@ -142,6 +129,20 @@ def single_game(queue):
                 if now_select == 5 or now_select == 10:
                     now_select -= 5
 
+            prev_select[turn] = now_select
+
+        elif stones[prev_select[1]].vel == 0:  # ai
+            me = random.randint(0, 4)
+            while stones[me].is_dead():
+                me = me - 4 if target == 4 else me + 1
+            target = random.randint(5, 9)
+            while stones[target].is_dead():
+                target = target - 4 if target == 9 else target + 1
+
+            stones[me].angle = stones[me].arrow_angle = (angle_0to5(stones[target], stones[me]) + 180) % 360
+            stones[me].vel = random.random() * 1000
+            newturn = 1 - turn
+            turn_changed = True
             prev_select[turn] = now_select
 
         # 움직임
