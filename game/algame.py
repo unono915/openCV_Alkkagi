@@ -140,6 +140,7 @@ def single_game(queue):
                 target = target - 4 if target == 9 else target + 1
 
             stones[me].angle = stones[me].arrow_angle = (angle_0to5(stones[target], stones[me]) + 180) % 360
+            print(stones[me].angle)
             stones[me].vel = random.random() * 1000
             newturn = 1 - turn
             turn_changed = True
