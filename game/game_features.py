@@ -181,8 +181,8 @@ def shoot(events, stone, turn):
                 v = stone.hidvel
                 stone.hidvel = 0
                 stone.bycon = -1
-                turn = 1 - turn
-                return v, turn
+                newturn = 1 - turn
+                return v, newturn
 
     return 0, turn
 
