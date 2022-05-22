@@ -9,8 +9,9 @@ from handGesture import angle_0to5
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 YELLOW = (255, 255, 0)
+BLUE = (0, 0, 255)
 
-SCREEN_WIDTH = 800
+SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
 
 # Movement substeps at the given timestep
@@ -23,25 +24,23 @@ FPS = 60.0
 
 def init_window():
     global stones, window, contents, prev_select
-    icon = pygame.Surface((1, 1))
+    """icon = pygame.Surface((1, 1))
     icon.set_alpha(0)
     pygame.display.set_icon(icon)
-    pygame.display.set_caption("OOP_LIGHTBULB")
-    surface = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
-    pygame.init()
-
-    fontObj = pygame.font.Font("assets/NanumSquareRoundB.ttf", 16)
-
-    # team 0
-    stones = [Stone(start_x=i * 78 + 244, start_y=144, mass=i, team=0, surface=surface) for i in range(5)]
-    # team 1
-    stones += [Stone(start_x=i * 78 + 244, start_y=457, mass=i + 5, team=1, surface=surface) for i in range(5)]
-    prev_select = [0, 5]
+    pygame.display.set_caption("OOP_LIGHTBULB")"""
 
     # 화면 생성
     # screen = Screen("lightbulb", 1000, 600, (0, 0, 0))
     window = Screen("lightbulb", 1000, 600, (0, 0, 0)).screen  # 게임화면
+
+    pygame.init()
+    fontObj = pygame.font.Font("assets/DungGeunMo.ttf", 25)
+
+    # team 0
+    stones = [Stone(start_x=i * 78 + 244, start_y=144, mass=i, team=0, surface=window) for i in range(5)]
+    # team 1
+    stones += [Stone(start_x=i * 78 + 244, start_y=457, mass=i + 5, team=1, surface=window) for i in range(5)]
+    prev_select = [0, 5]
 
     # 바둑판
     board_img = pygame.image.load("assets/board.png").convert()
@@ -58,6 +57,15 @@ def init_window():
     dotline_img = pygame.transform.scale(dotline_img, (650, 160))
     dotline_offset = pygame.math.Vector2(dotline_img.get_width() // 2, 0)  # 벡터
 
+    # 배경화면
+    bg_img1 = pygame.image.load("assets/bg5.png")
+    bg_img1 = pygame.transform.scale(bg_img1, (1000, 600))
+    window.blit(bg_img1, (0, 0))
+
+    # 배경음악
+    pygame.mixer.music.load("assets/intro.mp3")
+    pygame.mixer.music.play(-1)
+
     contents = {
         "stones": stones,
         "board_img": board_img,
@@ -70,11 +78,30 @@ def init_window():
 
 
 def start_screen():
+    """bg_img1 = pygame.image.load("assets/bg1.jpg")
+    bg_img1 = pygame.transform.scale(bg_img1, (500, 300))
+    window.blit(bg_img1, (500, 300))
+    bg_img2 = pygame.image.load("assets/bg2.jpg")
+    bg_img2 = pygame.transform.scale(bg_img2, (500, 300))
+    window.blit(bg_img2, (0, 300))
+    bg_img3 = pygame.image.load("assets/bg3.jpg")
+    bg_img3 = pygame.transform.scale(bg_img3, (500, 300))
+    window.blit(bg_img3, (0, 0))
+    bg_img4 = pygame.image.load("assets/bg4.png")
+    bg_img4 = pygame.transform.scale(bg_img4, (500, 300))
+    window.blit(bg_img4, (500, 0))"""
+
+    menu = pygame.Surface((400, 300))
+    menu.fill(WHITE)
+    menu.set_colorkey((0, 0, 0, 128))
+    menu = menu.convert_alpha()
     fontObj = contents["fontObj"]
-    textprint(window, pygame.font.Font("assets/NanumSquareRoundB.ttf", 30), "OpenCV 알까기", 400, 200)
-    textprint(window, fontObj, "1. Single Play", 400, 300)
-    textprint(window, fontObj, "2. Multi Play", 400, 350)
-    textprint(window, fontObj, "3. Exit", 400, 400)
+    pygame.draw.rect(menu, BLUE, (0, 0, 400, 100))
+    textprint(menu, pygame.font.Font("assets/DungGeunMo.ttf", 40), "OpenCV 알까기", 200, 50, bg=BLUE)
+    textprint(menu, fontObj, "1. Single Play", 200, 150, BLACK, WHITE)
+    textprint(menu, fontObj, "2. Multi Play", 200, 200, BLACK, WHITE)
+    textprint(menu, fontObj, "3. Exit", 200, 250, BLACK, WHITE)
+    window.blit(menu, (300, 150))
     pygame.display.flip()
     waiting = True
     while waiting:
@@ -99,7 +126,7 @@ def single_game(queue):
     window.blit(contents["board_img"], (150, 50))  # 바둑판 위치
     clock = pygame.time.Clock()
     while True:
-        if turn == 1:
+        if turn == 1:  # player
             try:  # handGesture 에서 queue를 이용해 값 가져오기
                 recieve = queue.get_nowait()
             except Exception:
@@ -140,6 +167,7 @@ def single_game(queue):
                 target = target - 4 if target == 9 else target + 1
 
             stones[me].angle = stones[me].arrow_angle = (angle_0to5(stones[target], stones[me]) + 180) % 360
+            print(stones[me].angle)
             stones[me].vel = random.random() * 1000
             newturn = 1 - turn
             turn_changed = True
@@ -224,8 +252,11 @@ def game_main(queue):
     """turn = 0
     turn_changed = False
     now_select = 0  # 현재 선택된 돌의 번호"""
+
     init_window()
     mode = start_screen()
+    pygame.mixer.music.load("assets/stage.mp3")
+    pygame.mixer.music.play(-1)
     if mode == 1:
         single_game(queue)
     elif mode == 2:

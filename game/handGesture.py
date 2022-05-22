@@ -15,7 +15,7 @@ def angle_0to5(a, b):
     dy = a.y - b.y
     dx = a.x - b.x
     if dx == 0:
-        return 90 if dy > 0 else -90
+        return -90 if dy > 0 else 90
 
     angle = math.atan(dy / dx) * 180 / math.pi
     if dx < 0.0:
