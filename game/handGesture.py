@@ -6,7 +6,13 @@ from pynput.keyboard import Key, Controller
 import numpy as np
 
 gesture = {
-    0:'rock', 1:'one', 2:'two', 3:'two1', 4:'three', 5:'three1', 6:'spider',
+    0: "rock",
+    1: "one",
+    2: "two",
+    3: "two1",
+    4: "three",
+    5: "three1",
+    6: "spider",
 }
 
 keyboard = Controller()
@@ -15,13 +21,14 @@ mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(max_num_hands=1, min_detection_confidence=0.8, min_tracking_confidence=0.8)
 
 # Gesture recognition model
-file = np.genfromtxt('assets/gesture_train.csv', delimiter=',')
-angle = file[:,:-1].astype(np.float32)
+file = np.genfromtxt("assets/gesture_train.csv", delimiter=",")
+angle = file[:, :-1].astype(np.float32)
 label = file[:, -1].astype(np.float32)
 knn = cv2.ml.KNearest_create()
 knn.train(angle, cv2.ml.ROW_SAMPLE, label)
 
 cap = cv2.VideoCapture(0)
+
 
 def angle_0to5(a, b):
     dy = a.y - b.y
@@ -37,24 +44,29 @@ def angle_0to5(a, b):
             angle += 360.0
     return (angle + 180) % 360
 
+
 def gesture(res):
     joint = np.zeros((21, 3))
     for j, lm in enumerate(res.landmark):
         joint[j] = [lm.x, lm.y, lm.z]
 
     # Compute angles between joints
-    v1 = joint[[0,1,2,3,0,5,6,7,0,9,10,11,0,13,14,15,0,17,18,19],:] # Parent joint
-    v2 = joint[[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],:] # Child joint
-    v = v2 - v1 # [20,3]
+    v1 = joint[[0, 1, 2, 3, 0, 5, 6, 7, 0, 9, 10, 11, 0, 13, 14, 15, 0, 17, 18, 19], :]  # Parent joint
+    v2 = joint[[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], :]  # Child joint
+    v = v2 - v1  # [20,3]
     # Normalize v
     v = v / np.linalg.norm(v, axis=1)[:, np.newaxis]
 
     # Get angle using arcos of dot product
-    angle = np.arccos(np.einsum('nt,nt->n',
-        v[[0,1,2,4,5,6,8,9,10,12,13,14,16,17,18],:], 
-        v[[1,2,3,5,6,7,9,10,11,13,14,15,17,18,19],:])) # [15,]
+    angle = np.arccos(
+        np.einsum(
+            "nt,nt->n",
+            v[[0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18], :],
+            v[[1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19], :],
+        )
+    )  # [15,]
 
-    angle = np.degrees(angle) # Convert radian to degree
+    angle = np.degrees(angle)  # Convert radian to degree
 
     # Inference gesture
     idx = 0
@@ -62,6 +74,7 @@ def gesture(res):
     ret, results, neighbours, dist = knn.findNearest(data, 3)
     idx = int(results[0][0])
     return idx
+
 
 def cval(queue_cam2game, queue_game2cam):
     # ready가 3이되면 슈팅 가능
@@ -97,7 +110,7 @@ def cval(queue_cam2game, queue_game2cam):
                     )
                 )
                 d1_to_2 = d1_to_2 * 1000.0
-                
+
             if mode_ready:
                 idx = gesture(hand_landmark)
                 if mode_idx != idx:
@@ -107,7 +120,7 @@ def cval(queue_cam2game, queue_game2cam):
                     ready += 1 / 20
                 if ready > 2:
                     send["select_mode"] = mode_idx
-                    queue.put(send)
+                    queue_cam2game.put(send)
                     mode_ready = False
                     print("Let's game")
                 if mode_ready:
