@@ -6,6 +6,7 @@ from pygame.locals import *
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 YELLOW = (255, 255, 0)
+BLUE = (0, 0, 255)
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -22,8 +23,8 @@ class Screen:  # 스크린을 선언하고 display.set_caption까지 호출함
         self.screen.fill(self.color)
 
 
-def textprint(window, fontObj, printobj, xcord=400, ycord=30):
-    textSurfaceObj = fontObj.render(str(printobj), True, WHITE, BLACK)
+def textprint(window, fontObj, printobj, xcord=400, ycord=30, txtcolor=WHITE, bg=BLACK):
+    textSurfaceObj = fontObj.render(str(printobj), True, txtcolor, bg)
     textRectObj = textSurfaceObj.get_rect()
     textRectObj.center = (xcord, ycord)
     window.blit(textSurfaceObj, textRectObj)
@@ -50,7 +51,7 @@ def score_text(stones, now_select):
     elif scored[1] == 0:
         return "WHITE WIN"
     else:
-        return "White : " + str(scored[0]) + " vs Gray :" + str(scored[1]) + "\n" + "Selection :" + str(now_select + 1)
+        return "White : " + str(scored[0]) + " vs Gray : " + str(scored[1]) + " " + "Selection :" + str(now_select + 1)
 
 
 def arrow(window, arrow_angle, pivot, arrow_img, arrow_offset, dotline_img, dotline_offset):
@@ -103,22 +104,26 @@ def new_draw(window, contents, now_select, turn):
             stone.draw()
     textprint(window, fontObj, score_text(stones, now_select))
     if turn == 0:
-        textprint(window, fontObj, "WHITE TURN", 800, 400)
+        textprint(window, fontObj, "WHITE TURN", 800, 500)
     else:
-        textprint(window, fontObj, "GRAY TURN", 800, 400)
+        textprint(window, fontObj, "GRAY TURN", 800, 500)
 
     for stone in stones:
         if stone.mass == 0:
-            textprint(window, fontObj, "------- WHITE -------", 800, 100)
+            textprint(
+                window, fontObj, "------- WHITE -------", 800, 120 + stone.mass * 30 + (stone.mass // 5) * 30 - 30
+            )
         if stone.mass == 5:
-            textprint(window, fontObj, "-------  GRAY -------", 800, 230)
+            textprint(
+                window, fontObj, "-------  GRAY -------", 800, 120 + stone.mass * 30 + (stone.mass // 5) * 30 - 30
+            )
         if not stone.visible:
             textprint(
-                window, fontObj, "%d 은 죽었습니다." % (stone.mass + 1), 800, 120 + stone.mass * 20 + (stone.mass // 5) * 30
+                window, fontObj, "%d 은 죽었습니다." % (stone.mass + 1), 800, 120 + stone.mass * 30 + (stone.mass // 5) * 30
             )
         else:
             textprint(
-                window, fontObj, "%d 은 살아있습니다." % (stone.mass + 1), 800, 120 + stone.mass * 20 + (stone.mass // 5) * 30
+                window, fontObj, "%d 은 살아있습니다." % (stone.mass + 1), 800, 120 + stone.mass * 30 + (stone.mass // 5) * 30
             )
 
     pygame.display.flip()
