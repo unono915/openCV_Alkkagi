@@ -88,6 +88,7 @@ def cval(queue_cam2game, queue_game2cam):
     cnt = 0
     init_page = True
     mode_idx = 0
+    al_select = True
     while cap.isOpened():
         try:  # handGesture 에서 queue를 이용해 값 가져오기
             init_page = queue_game2cam.get_nowait()
@@ -95,7 +96,7 @@ def cval(queue_cam2game, queue_game2cam):
             pass
 
         cnt += 1
-        send = {"shoot_power": 0, "shoot_angle": None, "select_mode": 0}
+        send = {"shoot_power": 0, "shoot_angle": None, "select_mode": 0, "select_Al": None}
 
         success, img = cap.read()
         if not success:
@@ -131,6 +132,20 @@ def cval(queue_cam2game, queue_game2cam):
                     # print("Let's game")
 
             else:
+                if al_select:
+                    if hand_landmark.landmark[9].x < 0.3:
+                        send["select_Al"] = 0
+                        al_select = False
+                        print(al_select)
+                    elif hand_landmark.landmark[9].x > 0.7:
+                        send["select_Al"] = 1
+                        al_select = False
+                        print(al_select)
+                else:
+                    if 0.3 < hand_landmark.landmark[9].x < 0.7:
+                        al_select = True
+                        print(al_select)
+
                 if cnt % 2 and not ready_tf:
                     shoot_angle = angle_0to5(hand_landmark.landmark[0], hand_landmark.landmark[5])
                     send["shoot_angle"] = shoot_angle
@@ -142,7 +157,6 @@ def cval(queue_cam2game, queue_game2cam):
                 else:
                     ready = 0
                 if ready > 2:
-                    # d0_to_1 = d0_to_1 * 1000.0
                     start_dist = d1_to_2
                     ready_tf = True
                     print("Start")
@@ -161,7 +175,7 @@ def cval(queue_cam2game, queue_game2cam):
                             # max_power = max_dist - start_dist
 
                     if time() - shootingtime > 1:
-                        send["shoot_power"] = max_power * 30
+                        send["shoot_power"] = max_power * 10
 
                         ready_tf = False
                         shootingtime = 0
