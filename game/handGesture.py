@@ -117,15 +117,15 @@ def cval(queue_cam2game, queue_game2cam):
                     )
                 )
                 d1_to_2 = d1_to_2 * 1000.0
-
                 idx = gesture(hand_landmarks)
                 if mode_idx != idx:
                     gesture_wait = 0
                     mode_idx = idx
                 if mode_idx == idx and idx != 0:
-                    gesture_wait += 1 / 7
-                if gesture_wait > 2:
+                    gesture_wait += 1
+                if gesture_wait == 14:
                     send["gesture"] = mode_idx
+                    print("gesture send")
                     queue_cam2game.put(send)
                     # print("Let's game")
 

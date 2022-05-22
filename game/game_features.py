@@ -129,6 +129,33 @@ def new_draw(window, contents, now_select, turn):
     pygame.display.flip()
 
 
+def ask_exit(window, queue_cam2game, fontObj):  # 게임중 손가락으로 3 하면 여기 들어옴
+    ask_window = pygame.Surface((400, 150))
+    ask_window.fill(WHITE)
+    textprint(ask_window, fontObj, "시작화면으로 나가시겠습니까?", 200, 50, BLACK, WHITE)
+    textprint(ask_window, fontObj, "1. 나가기", 100, 100, BLACK, WHITE)
+    textprint(ask_window, fontObj, "2. 계속하기", 250, 100, BLACK, WHITE)
+    window.blit(ask_window, (300, 250))
+    pygame.display.flip()
+
+    while True:
+        for event in pygame.event.get():
+            pass
+
+        try:  # handGesture 에서 queue를 이용해 값 가져오기
+            recieve = queue_cam2game.get_nowait()
+            print(recieve)
+            if recieve["gesture"] == 1:
+                while not queue_cam2game.empty():
+                    queue_cam2game.get()
+                return True
+            if recieve["gesture"] in (2, 3):
+                return False
+
+        except Exception:
+            pass
+
+
 def select_stone(events, now_select, turn):
     for event in events:  # 키보드 입력을 받는다.
         if event.type == KEYDOWN:

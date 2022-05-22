@@ -78,22 +78,9 @@ def init_window():
 
 
 def start_screen(queue_cam2game):
-    """bg_img1 = pygame.image.load("assets/bg1.jpg")
-    bg_img1 = pygame.transform.scale(bg_img1, (500, 300))
-    window.blit(bg_img1, (500, 300))
-    bg_img2 = pygame.image.load("assets/bg2.jpg")
-    bg_img2 = pygame.transform.scale(bg_img2, (500, 300))
-    window.blit(bg_img2, (0, 300))
-    bg_img3 = pygame.image.load("assets/bg3.jpg")
-    bg_img3 = pygame.transform.scale(bg_img3, (500, 300))
-    window.blit(bg_img3, (0, 0))
-    bg_img4 = pygame.image.load("assets/bg4.png")
-    bg_img4 = pygame.transform.scale(bg_img4, (500, 300))
-    window.blit(bg_img4, (500, 0))"""
 
     menu = pygame.Surface((400, 300))
     menu.fill(WHITE)
-    menu.set_colorkey((0, 0, 0, 128))
     menu = menu.convert_alpha()
     fontObj = contents["fontObj"]
     pygame.draw.rect(menu, BLUE, (0, 0, 400, 100))
@@ -110,18 +97,17 @@ def start_screen(queue_cam2game):
 
         try:  # handGesture 에서 queue를 이용해 값 가져오기
             recieve = queue_cam2game.get_nowait()
+            if recieve["gesture"] == 1:
+                return 1
+            if recieve["gesture"] in (2, 3):
+                return 2
+            if recieve["gesture"] in (4, 5):
+                print("Exit blocked")
+                """waiting = False
+                pygame.quit()
+                sys.exit()"""
         except Exception:
-            recieve = {"select_mode": 0}
-
-        if recieve["select_mode"] == 1:
-            return 1
-        if recieve["select_mode"] in (2, 3):
-            return 2
-        if recieve["select_mode"] in (4, 5):
-            print("Exit blocked")
-            """waiting = False
-            pygame.quit()
-            sys.exit()"""
+            pass
 
 
 def single_game(queue_cam2game, queue_game2cam):
@@ -134,20 +120,24 @@ def single_game(queue_cam2game, queue_game2cam):
         if turn == 1:  # player
             try:  # handGesture 에서 queue를 이용해 값 가져오기
                 recieve = queue_cam2game.get_nowait()
+                # 각도가 있을 경우 (0도도 포함)
+                if recieve["shoot_angle"] != None:
+                    stones[now_select].arrow_angle = recieve["shoot_angle"]
+
+                newturn = turn
+                # 발사(손튕기기)한 경우
+                if recieve["shoot_power"]:
+                    stones[now_select].angle = stones[now_select].arrow_angle
+                    stones[now_select].vel = recieve["shoot_power"]
+                    turn_changed = True
+                    newturn = 1 - turn
+
+                if recieve["gesture"] in (4, 5):  # 손가락 3
+                    if ask_exit(window, queue_cam2game, contents["fontObj"]):
+                        game_main(queue_cam2game, queue_game2cam)
             except Exception:
-                recieve = {"shoot_power": 0, "shoot_angle": None}
-
-            # 각도가 있을 경우 (0도도 포함)
-            if recieve["shoot_angle"] != None:
-                stones[now_select].arrow_angle = recieve["shoot_angle"]
-
-            newturn = turn
-            # 발사(손튕기기)한 경우
-            if recieve["shoot_power"]:
-                stones[now_select].angle = stones[now_select].arrow_angle
-                stones[now_select].vel = recieve["shoot_power"]
-                turn_changed = True
-                newturn = 1 - turn
+                pass
+            
 
             events = pygame.event.get()
             now_select = select_stone(events, now_select, turn)  # 돌 결정
@@ -208,20 +198,23 @@ def multi_game(queue_cam2game, queue_game2cam):
 
         try:  # handGesture 에서 queue를 이용해 값 가져오기
             recieve = queue_cam2game.get_nowait()
+            # 각도가 있을 경우 (0도도 포함)
+            if recieve["shoot_angle"] != None:
+                stones[now_select].arrow_angle = recieve["shoot_angle"]
+
+            newturn = turn
+            # 발사(손튕기기)한 경우
+            if recieve["shoot_power"]:
+                stones[now_select].angle = stones[now_select].arrow_angle
+                stones[now_select].vel = recieve["shoot_power"]
+                turn_changed = True
+                newturn = 1 - turn
+
+            if recieve["gesture"] in (4, 5):  # 손가락 3
+                if ask_exit(window, queue_cam2game, contents["fontObj"]):
+                    game_main(queue_cam2game, queue_game2cam)
         except Exception:
-            recieve = {"shoot_power": 0, "shoot_angle": None}
-
-        # 각도가 있을 경우 (0도도 포함)
-        if recieve["shoot_angle"] != None:
-            stones[now_select].arrow_angle = recieve["shoot_angle"]
-
-        newturn = turn
-        # 발사(손튕기기)한 경우
-        if recieve["shoot_power"]:
-            stones[now_select].angle = stones[now_select].arrow_angle
-            stones[now_select].vel = recieve["shoot_power"]
-            turn_changed = True
-            newturn = 1 - turn
+            pass
 
         events = pygame.event.get()
         now_select = select_stone(events, now_select, turn)  # 돌 결정
