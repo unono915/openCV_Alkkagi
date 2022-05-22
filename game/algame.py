@@ -256,10 +256,9 @@ def game_main(queue_cam2game, queue_game2cam):
     now_select = 0  # 현재 선택된 돌의 번호"""
 
     init_window()
+    queue_game2cam.put(True)
     mode = start_screen()
-
     queue_game2cam.put(False)
-
     pygame.mixer.music.load("assets/stage.mp3")
     pygame.mixer.music.play(-1)
     if mode == 1:

@@ -86,12 +86,11 @@ def cval(queue_cam2game, queue_game2cam):
     max_dist = 0
     max_power = 0
     cnt = 0
-    mode_ready = True
+    init_page = True
     mode_idx = 0
     while cap.isOpened():
-
         try:  # handGesture 에서 queue를 이용해 값 가져오기
-            mode_ready = queue_game2cam.get_nowait()
+            init_page = queue_game2cam.get_nowait()
         except Exception:
             pass
 
@@ -118,60 +117,57 @@ def cval(queue_cam2game, queue_game2cam):
                 )
                 d1_to_2 = d1_to_2 * 1000.0
 
-            if mode_ready:
+            if init_page:
                 idx = gesture(hand_landmark)
                 if mode_idx != idx:
                     ready = 0
                     mode_idx = idx
-                if mode_idx == idx:
+                if mode_idx == idx and idx != 0:
                     ready += 1 / 20
                 if ready > 2:
                     send["select_mode"] = mode_idx
                     queue_cam2game.put(send)
-                    mode_ready = False
                     print("Let's game")
-                if mode_ready:
-                    continue
 
-            if cnt % 2 and not ready_tf:
-                shoot_angle = angle_0to5(hand_landmark.landmark[0], hand_landmark.landmark[5])
-                send["shoot_angle"] = shoot_angle
-                # print(shoot_angle, "도")
+            if not init_page:
+                if cnt % 2 and not ready_tf:
+                    shoot_angle = angle_0to5(hand_landmark.landmark[0], hand_landmark.landmark[5])
+                    send["shoot_angle"] = shoot_angle
+                    # print(shoot_angle, "도")
 
-            # 3초동안 Okay손모양하고 있으면 Ready완료
-            if d1_to_2 < 100 and not ready_tf:
-                ready += 1 / 20
-            else:
-                ready = 0
-            if ready > 2:
-                # d0_to_1 = d0_to_1 * 1000.0
-                start_dist = d1_to_2
-                ready_tf = True
-                print("Start")
+                # 3초동안 Okay손모양하고 있으면 Ready완료
+                if d1_to_2 < 100 and not ready_tf:
+                    ready += 1 / 20
+                else:
+                    ready = 0
+                if ready > 2:
+                    # d0_to_1 = d0_to_1 * 1000.0
+                    start_dist = d1_to_2
+                    ready_tf = True
+                    print("Start")
 
-            # 2초안에 슈팅
-            if ready_tf:
-                if shootingtime == 0:
-                    shootingtime = time()
-                if d1_to_2 > 100:
-                    shooting_s += 1
-                if d1_to_2 > max_dist:
-                    max_dist = d1_to_2
-                    max_shooting_s = shooting_s
-                    if max_shooting_s != 0:
-                        max_power = (max_dist - start_dist) / max_shooting_s
-                        # max_power = max_dist - start_dist
+                # 2초안에 슈팅
+                if ready_tf:
+                    if shootingtime == 0:
+                        shootingtime = time()
+                    if d1_to_2 > 100:
+                        shooting_s += 1
+                    if d1_to_2 > max_dist:
+                        max_dist = d1_to_2
+                        max_shooting_s = shooting_s
+                        if max_shooting_s != 0:
+                            max_power = (max_dist - start_dist) / max_shooting_s
+                            # max_power = max_dist - start_dist
 
-                if time() - shootingtime > 1:
-                    send["shoot_power"] = max_power * 3
+                    if time() - shootingtime > 1:
+                        send["shoot_power"] = max_power * 30
 
-                    ready_tf = False
-                    shootingtime = 0
-                    shooting_s = 0
-                    max_dist = 0
-                    max_power = 0
-
-            queue_cam2game.put(send)
+                        ready_tf = False
+                        shootingtime = 0
+                        shooting_s = 0
+                        max_dist = 0
+                        max_power = 0
+                queue_cam2game.put(send)
 
         cv2.imshow("Image", img)
         if cv2.waitKey(1) == ord("q"):
