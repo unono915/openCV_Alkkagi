@@ -123,13 +123,14 @@ def cval(queue_cam2game, queue_game2cam):
                     ready = 0
                     mode_idx = idx
                 if mode_idx == idx and idx != 0:
-                    ready += 1 / 20
+                    ready += 1 / 7
                 if ready > 2:
+                    print(mode_idx)
                     send["select_mode"] = mode_idx
                     queue_cam2game.put(send)
-                    print("Let's game")
+                    # print("Let's game")
 
-            if not init_page:
+            else:
                 if cnt % 2 and not ready_tf:
                     shoot_angle = angle_0to5(hand_landmark.landmark[0], hand_landmark.landmark[5])
                     send["shoot_angle"] = shoot_angle
@@ -137,7 +138,7 @@ def cval(queue_cam2game, queue_game2cam):
 
                 # 3초동안 Okay손모양하고 있으면 Ready완료
                 if d1_to_2 < 100 and not ready_tf:
-                    ready += 1 / 20
+                    ready += 1 / 10
                 else:
                     ready = 0
                 if ready > 2:

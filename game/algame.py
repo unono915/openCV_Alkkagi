@@ -63,8 +63,8 @@ def init_window():
     window.blit(bg_img1, (0, 0))
 
     # 배경음악
-    pygame.mixer.music.load("assets/intro.mp3")
-    pygame.mixer.music.play(-1)
+    """pygame.mixer.music.load("assets/intro.mp3")
+    pygame.mixer.music.play(-1)"""
 
     contents = {
         "stones": stones,
@@ -118,9 +118,10 @@ def start_screen(queue_cam2game):
         if recieve["select_mode"] in (2, 3):
             return 2
         if recieve["select_mode"] in (4, 5):
-            waiting = False
+            print("Exit blocked")
+            """waiting = False
             pygame.quit()
-            sys.exit()
+            sys.exit()"""
 
 
 def single_game(queue_cam2game, queue_game2cam):
@@ -192,7 +193,7 @@ def single_game(queue_cam2game, queue_game2cam):
         game_result = score_text(stones, now_select)
         if game_result == "GRAY WIN" or game_result == "WHITE WIN":
             print_end(window, game_result)  # 개임오버 메세지
-            break
+            game_main(queue_cam2game, queue_game2cam)
 
         clock.tick(FPS)
 
@@ -249,7 +250,7 @@ def multi_game(queue_cam2game, queue_game2cam):
         game_result = score_text(stones, now_select)
         if game_result == "GRAY WIN" or game_result == "WHITE WIN":
             print_end(window, game_result)  # 개임오버 메세지
-            break
+            game_main(queue_cam2game, queue_game2cam)
 
         clock.tick(FPS)
 
@@ -263,8 +264,8 @@ def game_main(queue_cam2game, queue_game2cam):
     queue_game2cam.put(True)
     mode = start_screen(queue_cam2game)
     queue_game2cam.put(False)
-    pygame.mixer.music.load("assets/stage.mp3")
-    pygame.mixer.music.play(-1)
+    """pygame.mixer.music.load("assets/stage.mp3")
+    pygame.mixer.music.play(-1)"""
     if mode == 1:
         single_game(queue_cam2game, queue_game2cam)
     elif mode == 2:
