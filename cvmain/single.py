@@ -2,11 +2,10 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
-max_num_hands = 1 # 인식할 수 있는 손 개수
+max_num_hands = 1
 gesture = {
-    0:'fist', 1:'one', 2:'two', 3:'three', 4:'four', 5:'five',
-    6:'six', 7:'rock', 8:'spiderman', 9:'yeah', 10:'ok', 11:'fy'
-} # 12가지의 제스처, 제스처 데이터는 손가락 관절의 각도와 각각의 라벨을 뜻한다.
+    0:'rock', 1:'one', 2:'two', 3:'two1', 4:'three', 5:'three1', 6:'spider',
+}
 
 # MediaPipe hands model
 mp_hands = mp.solutions.hands
@@ -16,20 +15,14 @@ hands = mp_hands.Hands(
     min_detection_confidence=0.5,
     min_tracking_confidence=0.5)
 
-# Gesture recognition data
+# Gesture recognition model
 file = np.genfromtxt('data/gesture_train.csv', delimiter=',')
-print(file.shape)
+angle = file[:,:-1].astype(np.float32)
+label = file[:, -1].astype(np.float32)
+knn = cv2.ml.KNearest_create()
+knn.train(angle, cv2.ml.ROW_SAMPLE, label)
 
 cap = cv2.VideoCapture(0)
-
-def click(event, x, y, flags, param):
-    global data, file
-    if event == cv2.EVENT_LBUTTONDOWN:
-        file = np.vstack((file, data))
-        print(file.shape)
-
-cv2.namedWindow('Dataset')
-cv2.setMouseCallback('Dataset', click)
 
 while cap.isOpened():
     ret, img = cap.read()
@@ -63,14 +56,15 @@ while cap.isOpened():
 
             angle = np.degrees(angle) # Convert radian to degree
 
+            # Inference gesture
             data = np.array([angle], dtype=np.float32)
-            
-            data = np.append(data, 11) # 
+            ret, results, neighbours, dist = knn.findNearest(data, 3)
+            idx = int(results[0][0])
+
+            cv2.putText(img, text=gesture[idx].upper(), org=(int(res.landmark[0].x * img.shape[1]), int(res.landmark[0].y * img.shape[0] + 20)), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, color=(255, 255, 255), thickness=2)
 
             mp_drawing.draw_landmarks(img, res, mp_hands.HAND_CONNECTIONS)
 
-    cv2.imshow('Dataset', img)
+    cv2.imshow('Game', img)
     if cv2.waitKey(1) == ord('q'):
         break
-
-np.savetxt('data/gesture_train_fy.csv', file, delimiter=',')
