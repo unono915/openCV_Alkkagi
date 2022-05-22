@@ -77,7 +77,7 @@ def init_window():
     }
 
 
-def start_screen():
+def start_screen(queue_cam2game):
     """bg_img1 = pygame.image.load("assets/bg1.jpg")
     bg_img1 = pygame.transform.scale(bg_img1, (500, 300))
     window.blit(bg_img1, (500, 300))
@@ -105,18 +105,19 @@ def start_screen():
     pygame.display.flip()
     waiting = True
     while waiting:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                waiting = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_1:
-                    return 1
-                elif event.key == pygame.K_2:
-                    return 2
-                elif event.key == pygame.K_3:
-                    waiting = False
-                    pygame.quit()
-                    sys.exit()
+        try:  # handGesture 에서 queue를 이용해 값 가져오기
+            recieve = queue_cam2game.get_nowait()
+        except Exception:
+            recieve = {"select_mode": 0}
+
+        if recieve["select_mode"] == 1:
+            return 1
+        if recieve["select_mode"] in (2, 3):
+            return 2
+        if recieve["select_mode"] in (4, 5):
+            waiting = False
+            pygame.quit()
+            sys.exit()
 
 
 def single_game(queue_cam2game, queue_game2cam):
@@ -257,7 +258,7 @@ def game_main(queue_cam2game, queue_game2cam):
 
     init_window()
     queue_game2cam.put(True)
-    mode = start_screen()
+    mode = start_screen(queue_cam2game)
     queue_game2cam.put(False)
     pygame.mixer.music.load("assets/stage.mp3")
     pygame.mixer.music.play(-1)
