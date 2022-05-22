@@ -4,7 +4,14 @@ import numpy as np
 
 max_num_hands = 1
 gesture = {
-    0:'rock', 1:'one', 2:'two', 3:'two1', 4:'three', 5:'three1', 6:'spider',
+    0: "rock",
+    1: "one",
+    2: "two",
+    3: "two1",
+    4: "three",
+    5: "three1",
+    6: "spider",
+    7: "okay",
 }
 
 # MediaPipe hands model

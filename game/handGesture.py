@@ -13,6 +13,7 @@ gesture = {
     4: "three",
     5: "three1",
     6: "spider",
+    7: "okay",
 }
 
 keyboard = Controller()
@@ -79,7 +80,8 @@ def gesture(res):
 def cval(queue_cam2game, queue_game2cam):
 
     # ready가 3이되면 슈팅 가능
-    ready = 0
+    gesture_wait = 0
+    shooting_wait = 0
     ready_tf = False
     shootingtime = 0
     shooting_s = 0
@@ -96,7 +98,7 @@ def cval(queue_cam2game, queue_game2cam):
             pass
 
         cnt += 1
-        send = {"shoot_power": 0, "shoot_angle": None, "select_mode": 0, "select_Al": None}
+        send = {"shoot_power": 0, "shoot_angle": None, "gesture": 0, "select_Al": None}
 
         success, img = cap.read()
         if not success:
@@ -105,11 +107,9 @@ def cval(queue_cam2game, queue_game2cam):
         img = cv2.cvtColor(cv2.flip(cv2.flip(img, 1), 0), cv2.COLOR_BGR2RGB)
         results = hands.process(img)
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-        hand_landmark = None
         # 화면에 손이 있어야 실행
         if results.multi_hand_landmarks is not None:
             for hand_landmarks in results.multi_hand_landmarks:
-                hand_landmark = hand_landmarks
                 d1_to_2 = abs(
                     math.dist(
                         (hand_landmarks.landmark[4].x, hand_landmarks.landmark[4].y),
@@ -118,45 +118,39 @@ def cval(queue_cam2game, queue_game2cam):
                 )
                 d1_to_2 = d1_to_2 * 1000.0
 
-            if init_page:
-                idx = gesture(hand_landmark)
+                idx = gesture(hand_landmarks)
                 if mode_idx != idx:
-                    ready = 0
+                    gesture_wait = 0
                     mode_idx = idx
                 if mode_idx == idx and idx != 0:
-                    ready += 1 / 7
-                if ready > 2:
-                    print(mode_idx)
-                    send["select_mode"] = mode_idx
+                    gesture_wait += 1 / 7
+                if gesture_wait > 2:
+                    send["gesture"] = mode_idx
                     queue_cam2game.put(send)
                     # print("Let's game")
 
-            else:
                 if al_select:
-                    if hand_landmark.landmark[9].x < 0.3:
+                    if hand_landmarks.landmark[9].x < 0.3:
                         send["select_Al"] = 0
                         al_select = False
-                        print(al_select)
-                    elif hand_landmark.landmark[9].x > 0.7:
+                    elif hand_landmarks.landmark[9].x > 0.7:
                         send["select_Al"] = 1
                         al_select = False
-                        print(al_select)
                 else:
-                    if 0.3 < hand_landmark.landmark[9].x < 0.7:
+                    if 0.3 < hand_landmarks.landmark[9].x < 0.7:
                         al_select = True
-                        print(al_select)
 
                 if cnt % 2 and not ready_tf:
-                    shoot_angle = angle_0to5(hand_landmark.landmark[0], hand_landmark.landmark[5])
+                    shoot_angle = angle_0to5(hand_landmarks.landmark[0], hand_landmarks.landmark[5])
                     send["shoot_angle"] = shoot_angle
                     # print(shoot_angle, "도")
 
                 # 3초동안 Okay손모양하고 있으면 Ready완료
                 if d1_to_2 < 100 and not ready_tf:
-                    ready += 1 / 10
+                    shooting_wait += 1 / 10
                 else:
-                    ready = 0
-                if ready > 2:
+                    shooting_wait = 0
+                if shooting_wait > 2:
                     start_dist = d1_to_2
                     ready_tf = True
                     print("Start")
@@ -176,7 +170,6 @@ def cval(queue_cam2game, queue_game2cam):
 
                     if time() - shootingtime > 1:
                         send["shoot_power"] = max_power * 10
-
                         ready_tf = False
                         shootingtime = 0
                         shooting_s = 0
