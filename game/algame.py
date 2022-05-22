@@ -105,6 +105,9 @@ def start_screen(queue_cam2game):
     pygame.display.flip()
     waiting = True
     while waiting:
+        for event in pygame.event.get():
+            pass
+
         try:  # handGesture 에서 queue를 이용해 값 가져오기
             recieve = queue_cam2game.get_nowait()
         except Exception:
