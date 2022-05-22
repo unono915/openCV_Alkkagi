@@ -77,6 +77,7 @@ def gesture(res):
 
 
 def cval(queue_cam2game, queue_game2cam):
+
     # ready가 3이되면 슈팅 가능
     ready = 0
     ready_tf = False
@@ -88,6 +89,12 @@ def cval(queue_cam2game, queue_game2cam):
     mode_ready = True
     mode_idx = 0
     while cap.isOpened():
+
+        try:  # handGesture 에서 queue를 이용해 값 가져오기
+            mode_ready = queue_game2cam.get_nowait()
+        except Exception:
+            pass
+
         cnt += 1
         send = {"shoot_power": 0, "shoot_angle": None, "select_mode": 0}
 

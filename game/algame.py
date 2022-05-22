@@ -257,6 +257,9 @@ def game_main(queue_cam2game, queue_game2cam):
 
     init_window()
     mode = start_screen()
+
+    queue_game2cam.put(False)
+
     pygame.mixer.music.load("assets/stage.mp3")
     pygame.mixer.music.play(-1)
     if mode == 1:
