@@ -119,7 +119,7 @@ def start_screen():
                     sys.exit()
 
 
-def single_game(queue):
+def single_game(queue_cam2game, queue_game2cam):
     turn = 0
     turn_changed = False
     now_select = 0  # 현재 선택된 돌의 번호
@@ -128,7 +128,7 @@ def single_game(queue):
     while True:
         if turn == 1:  # player
             try:  # handGesture 에서 queue를 이용해 값 가져오기
-                recieve = queue.get_nowait()
+                recieve = queue_cam2game.get_nowait()
             except Exception:
                 recieve = {"shoot_power": 0, "shoot_angle": None}
 
@@ -149,7 +149,7 @@ def single_game(queue):
             if now_select == -111:  # 종료
                 break
             elif now_select == 123:
-                game_main(queue)
+                game_main(queue_cam2game, queue_game2cam)
 
             if stones[now_select].is_dead():
                 now_select += 1
@@ -159,19 +159,21 @@ def single_game(queue):
             prev_select[turn] = now_select
 
         elif stones[prev_select[1]].vel == 0:  # ai
-            me = random.randint(0, 4)
-            while stones[me].is_dead():
-                me = me - 4 if target == 4 else me + 1
+            com_stone = random.randint(0, 4)
+            while stones[com_stone].is_dead():
+                com_stone = com_stone - 4 if target == 4 else com_stone + 1
             target = random.randint(5, 9)
             while stones[target].is_dead():
                 target = target - 4 if target == 9 else target + 1
 
-            stones[me].angle = stones[me].arrow_angle = (angle_0to5(stones[target], stones[me]) + 180) % 360
-            print(stones[me].angle)
-            stones[me].vel = random.random() * 1000
+            stones[com_stone].angle = stones[com_stone].arrow_angle = (
+                angle_0to5(stones[target], stones[com_stone]) + 180
+            ) % 360
+            print(stones[com_stone].angle)
+            stones[com_stone].vel = random.random() * 1000
             newturn = 1 - turn
             turn_changed = True
-            prev_select[turn] = now_select
+            prev_select[turn] = com_stone
 
         # 움직임
         new_move(stones)
@@ -191,7 +193,7 @@ def single_game(queue):
         clock.tick(FPS)
 
 
-def multi_game(queue):
+def multi_game(queue_cam2game, queue_game2cam):
     turn = 0
     turn_changed = False
     now_select = 0  # 현재 선택된 돌의 번호
@@ -200,7 +202,7 @@ def multi_game(queue):
     while True:
 
         try:  # handGesture 에서 queue를 이용해 값 가져오기
-            recieve = queue.get_nowait()
+            recieve = queue_cam2game.get_nowait()
         except Exception:
             recieve = {"shoot_power": 0, "shoot_angle": None}
 
@@ -221,7 +223,7 @@ def multi_game(queue):
         if now_select == -111:  # 종료
             break
         elif now_select == 123:
-            game_main(queue)
+            game_main(queue_cam2game, queue_game2cam)
 
         if stones[now_select].is_dead():
             now_select += 1
@@ -248,7 +250,7 @@ def multi_game(queue):
         clock.tick(FPS)
 
 
-def game_main(queue):
+def game_main(queue_cam2game, queue_game2cam):
     """turn = 0
     turn_changed = False
     now_select = 0  # 현재 선택된 돌의 번호"""
@@ -258,9 +260,9 @@ def game_main(queue):
     pygame.mixer.music.load("assets/stage.mp3")
     pygame.mixer.music.play(-1)
     if mode == 1:
-        single_game(queue)
+        single_game(queue_cam2game, queue_game2cam)
     elif mode == 2:
-        multi_game(queue)
+        multi_game(queue_cam2game, queue_game2cam)
 
     pygame.display.update()
     pygame.quit()

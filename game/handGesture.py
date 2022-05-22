@@ -26,7 +26,7 @@ def angle_0to5(a, b):
     return (angle + 180) % 360
 
 
-def cval(queue):
+def cval(queue_cam2game, queue_game2cam):
     # ready가 3이되면 슈팅 가능
     ready = 0
     ready_tf = False
@@ -96,7 +96,7 @@ def cval(queue):
                     max_dist = 0
                     max_power = 0
 
-            queue.put(send)
+            queue_cam2game.put(send)
 
         cv2.imshow("Image", img)
         if cv2.waitKey(1) == ord("q"):
