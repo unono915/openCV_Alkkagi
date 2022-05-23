@@ -144,10 +144,7 @@ def ask_exit(window, queue_cam2game, fontObj):  # 게임중 손가락으로 3 �
 
         try:  # handGesture 에서 queue를 이용해 값 가져오기
             recieve = queue_cam2game.get_nowait()
-            print(recieve)
             if recieve["gesture"] == 1:
-                while not queue_cam2game.empty():
-                    queue_cam2game.get()
                 return True
             if recieve["gesture"] in (2, 3):
                 return False

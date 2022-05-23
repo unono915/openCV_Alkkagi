@@ -125,8 +125,8 @@ def cval(queue_cam2game, queue_game2cam):
                     gesture_wait += 1
                 if gesture_wait == 14:
                     send["gesture"] = mode_idx
-                    print("gesture send")
-                    queue_cam2game.put(send)
+                    # print("gesture send")
+                    # queue_cam2game.put(send)
                     # print("Let's game")
 
                 if al_select:
@@ -175,6 +175,7 @@ def cval(queue_cam2game, queue_game2cam):
                         shooting_s = 0
                         max_dist = 0
                         max_power = 0
+
                 queue_cam2game.put(send)
 
         cv2.imshow("Image", img)
