@@ -139,18 +139,25 @@ def single_game(queue_cam2game, queue_game2cam):
                     turn_changed = True
                     newturn = 1 - turn
 
-                if recieve["gesture"] == 6:  # 권총 손가락
+                if recieve["gesture"]:
+                    print(recieve["gesture"])
+                if recieve["gesture"] in (1, 2, 3, 4, 5, 7):  # 7은 jax손
+                    if recieve["gesture"] == 7:
+                        recieve["gesture"] = 3
+                    now_select = recieve["gesture"] + turn * 4
+
+                if recieve["gesture"] == 6:  # 권총 손가락 --> 뒤로가기
                     if ask_exit(window, queue_cam2game, contents["fontObj"]):
                         game_main(queue_cam2game, queue_game2cam)
             except Exception:
                 pass
 
             events = pygame.event.get()
-            now_select = select_stone(events, now_select, turn)  # 돌 결정
+            """now_select = select_stone(events, now_select, turn)  # 돌 결정
             if now_select == -111:  # 종료
                 break
             elif now_select == 123:
-                game_main(queue_cam2game, queue_game2cam)
+                game_main(queue_cam2game, queue_game2cam)"""
 
             if stones[now_select].is_dead():
                 now_select += 1
@@ -215,6 +222,11 @@ def multi_game(queue_cam2game, queue_game2cam):
                 turn_changed = True
                 newturn = 1 - turn
 
+            if recieve["gesture"] in (1, 2, 3, 4, 5, 7):  # 7은 jax손
+                if recieve["gesture"] == 7:
+                    recieve["gesture"] = 3
+                now_select = recieve["gesture"] + turn * 4
+
             if recieve["gesture"] == 6:  # 권총 손가락
                 if ask_exit(window, queue_cam2game, contents["fontObj"]):
                     game_main(queue_cam2game, queue_game2cam)
@@ -222,11 +234,11 @@ def multi_game(queue_cam2game, queue_game2cam):
             pass
 
         events = pygame.event.get()
-        now_select = select_stone(events, now_select, turn)  # 돌 결정
+        """now_select = select_stone(events, now_select, turn)  # 돌 결정
         if now_select == -111:  # 종료
             break
         elif now_select == 123:
-            game_main(queue_cam2game, queue_game2cam)
+            game_main(queue_cam2game, queue_game2cam)"""
 
         if stones[now_select].is_dead():
             now_select += 1
