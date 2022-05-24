@@ -27,7 +27,7 @@ label = file[:, -1].astype(np.float32)
 knn = cv2.ml.KNearest_create()
 knn.train(angle, cv2.ml.ROW_SAMPLE, label)
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
 
 def angle_0to5(a, b):
@@ -90,6 +90,10 @@ def cval(queue_cam2game, queue_game2cam):
     mode_idx = 0
 
     while cap.isOpened():
+        try:  # handGesture 에서 queue를 이용해 값 가져오기
+            init_page = queue_game2cam.get_nowait()
+        except Exception:
+            pass
         cnt += 1
         send = {"shoot_power": 0, "shoot_angle": None, "gesture": 0, "select_Al": None, "ready": False}
 
