@@ -6,14 +6,15 @@ from pynput.keyboard import Key, Controller
 import numpy as np
 
 gesture = {
-    0: "rock",
+    0: "okay",
     1: "one",
     2: "two",
-    3: "two1",
-    4: "three",
-    5: "three1",
-    6: "spider",
-    7: "okay",
+    3: "three",
+    4: "four",
+    5: "five",
+    6: "back",
+    7: "jacks",
+    8: "circle",
 }
 
 keyboard = Controller()
@@ -28,7 +29,7 @@ label = file[:, -1].astype(np.float32)
 knn = cv2.ml.KNearest_create()
 knn.train(angle, cv2.ml.ROW_SAMPLE, label)
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 
 
 def angle_0to5(a, b):
