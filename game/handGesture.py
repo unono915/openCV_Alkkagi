@@ -99,7 +99,7 @@ def cval(queue_cam2game, queue_game2cam):
             pass
 
         cnt += 1
-        send = {"shoot_power": 0, "shoot_angle": None, "gesture": 0, "select_Al": None, "ready": False}
+        send = {"shoot_power": 0, "shoot_angle": None, "gesture": None, "select_Al": None, "ready": False}
 
         success, img = cap.read()
         if not success:
