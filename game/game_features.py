@@ -145,8 +145,10 @@ def ask_exit(window, queue_cam2game, fontObj):  # 게임중 손가락으로 3 �
         try:  # handGesture 에서 queue를 이용해 값 가져오기
             recieve = queue_cam2game.get_nowait()
             if recieve["gesture"] == 1:
+                print("exit")
                 return True
-            if recieve["gesture"] in (2, 3):
+            if recieve["gesture"] == 2:
+                print("return to game")
                 return False
 
         except Exception:
@@ -179,7 +181,7 @@ def collide(p1, p2):
     dy = p2.y - p1.y
 
     dist = hypot(dx, dy)
-    if dist + 1 <= p1.radius + p2.radius:
+    if dist - 3 <= p1.radius + p2.radius:
         p1.bycon = p2.mass
         p2.bycon = p1.mass
 

@@ -120,6 +120,13 @@ def single_game(queue_cam2game, queue_game2cam):
         if turn == 1:  # player
             try:  # handGesture 에서 queue를 이용해 값 가져오기
                 recieve = queue_cam2game.get_nowait()
+
+                if recieve["ready"]:  # ready state
+                    # shoot popup
+                    1
+                else:  # not ready state
+                    1
+
                 # 각도가 있을 경우 (0도도 포함)
                 if recieve["shoot_angle"] != None:
                     stones[now_select].arrow_angle = recieve["shoot_angle"]
@@ -132,12 +139,11 @@ def single_game(queue_cam2game, queue_game2cam):
                     turn_changed = True
                     newturn = 1 - turn
 
-                if recieve["gesture"] in (4, 5):  # 손가락 3
+                if recieve["gesture"] == 3:  # 권총 손가락
                     if ask_exit(window, queue_cam2game, contents["fontObj"]):
                         game_main(queue_cam2game, queue_game2cam)
             except Exception:
                 pass
-            
 
             events = pygame.event.get()
             now_select = select_stone(events, now_select, turn)  # 돌 결정
@@ -195,7 +201,6 @@ def multi_game(queue_cam2game, queue_game2cam):
     window.blit(contents["board_img"], (150, 50))  # 바둑판 위치
     clock = pygame.time.Clock()
     while True:
-
         try:  # handGesture 에서 queue를 이용해 값 가져오기
             recieve = queue_cam2game.get_nowait()
             # 각도가 있을 경우 (0도도 포함)
@@ -210,7 +215,7 @@ def multi_game(queue_cam2game, queue_game2cam):
                 turn_changed = True
                 newturn = 1 - turn
 
-            if recieve["gesture"] in (4, 5):  # 손가락 3
+            if recieve["gesture"] == 3:  # 권총 손가락
                 if ask_exit(window, queue_cam2game, contents["fontObj"]):
                     game_main(queue_cam2game, queue_game2cam)
         except Exception:
