@@ -24,7 +24,7 @@ hands = mp_hands.Hands(max_num_hands=max_num_hands, min_detection_confidence=0.5
 file = np.genfromtxt("assets/gesture_train.csv", delimiter=",")
 print(file.shape)
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 
 
 def click(event, x, y, flags, param):

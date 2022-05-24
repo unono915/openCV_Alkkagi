@@ -99,9 +99,9 @@ def start_screen(queue_cam2game):
             recieve = queue_cam2game.get_nowait()
             if recieve["gesture"] == 1:
                 return 1
-            if recieve["gesture"] in (2, 3):
+            if recieve["gesture"] == 2:
                 return 2
-            if recieve["gesture"] in (4, 5):
+            if recieve["gesture"] == 3:
                 print("Exit blocked")
                 """waiting = False
                 pygame.quit()
@@ -139,7 +139,7 @@ def single_game(queue_cam2game, queue_game2cam):
                     turn_changed = True
                     newturn = 1 - turn
 
-                if recieve["gesture"] == 3:  # 권총 손가락
+                if recieve["gesture"] == 6:  # 권총 손가락
                     if ask_exit(window, queue_cam2game, contents["fontObj"]):
                         game_main(queue_cam2game, queue_game2cam)
             except Exception:
@@ -215,7 +215,7 @@ def multi_game(queue_cam2game, queue_game2cam):
                 turn_changed = True
                 newturn = 1 - turn
 
-            if recieve["gesture"] == 3:  # 권총 손가락
+            if recieve["gesture"] == 6:  # 권총 손가락
                 if ask_exit(window, queue_cam2game, contents["fontObj"]):
                     game_main(queue_cam2game, queue_game2cam)
         except Exception:
