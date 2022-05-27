@@ -14,6 +14,7 @@ gesture = {
     6: "back",
     7: "jacks",
     8: "circle",
+    9: "fuckay",
 }
 
 mp_drawing = mp.solutions.drawing_utils
@@ -77,16 +78,14 @@ def gesture(res):
 
 def cval(queue_cam2game, queue_game2cam):
     # ready가 3이되면 슈팅 가능
+    start_dist= 0
     gesture_wait = 0
-    wait_1to2 = 0
-    wait_1to3 = 0
     okay_2or3 = 0
     ready_tf = False
     shootingtime = 0
-    shooting_s = 0
+    #shooting_s = 0
     max_dist = 0
     max_power = 0
-    cnt = 0
     mode_idx = 0
     angle_send = True
 
@@ -95,7 +94,6 @@ def cval(queue_cam2game, queue_game2cam):
             init_page = queue_game2cam.get_nowait()
         except Exception:
             pass
-        cnt += 1
         send = {"shoot_power": 0, "shoot_angle": None, "gesture": None, "select_Al": None, "ready": False}
 
         success, img = cap.read()
@@ -123,46 +121,33 @@ def cval(queue_cam2game, queue_game2cam):
 
                 d1_to_2 = d1_to_2 * 1000.0
                 d1_to_3 = d1_to_3 * 1000.0
+
                 idx = gesture(hand_landmarks)
                 if mode_idx != idx:
                     gesture_wait = 0
                     mode_idx = idx
-                if mode_idx == idx and idx != 0:
+                if mode_idx == idx:
                     gesture_wait += 1
-                if gesture_wait == 20:
+                #제스처를 2초간 유지
+                if gesture_wait == 20: 
                     send["gesture"] = mode_idx
                     print("gesture send")
-                    # queue_cam2game.put(send)
-                    # print("Let's game")
-
-                if cnt % 2 and angle_send:
+                    
+                    #okay or fuckay 슈팅 준비
+                    if mode_idx == 0 or mode_idx == 9:
+                        if mode_idx == 0:
+                            if start_dist==0:
+                                start_dist = d1_to_2
+                            okay_2or3 = 2
+                        elif mode_idx == 9:
+                            if start_dist==0:
+                                start_dist = d1_to_3
+                            okay_2or3 = 3
+                        ready_tf = True
+                        
+                if angle_send:
                     shoot_angle = angle_0to5(hand_landmarks.landmark[0], hand_landmarks.landmark[5])
                     send["shoot_angle"] = shoot_angle
-                    # print(shoot_angle, "도")
-
-                # 2초동안 Okay손모양하고 있으면 Ready완료
-                if d1_to_2 < 100 and not ready_tf:
-                    wait_1to2 += 1 / 10
-                else:
-                    wait_1to2 = 0
-                if wait_1to2 > 2:
-                    start_dist = d1_to_2
-                    ready_tf = True
-                    okay_2or3 = 2
-                    print("쏘세요!")
-
-                if d1_to_3 < 100 and not ready_tf:
-                    wait_1to3 += 1 / 10
-                else:
-                    wait_1to3 = 0
-                if wait_1to3 > 2:
-                    start_dist = d1_to_3
-                    ready_tf = True
-                    okay_2or3 = 3
-                    print("쏘세요!")
-
-                send["ready"] = ready_tf
-                # print(ready_tf)
 
                 # 1초안에 슈팅
                 if ready_tf:
@@ -171,27 +156,32 @@ def cval(queue_cam2game, queue_game2cam):
                     elif okay_2or3 == 3:
                         check_dist = d1_to_3
                     #print(check_dist)
-                    if shootingtime == 0:
-                        shootingtime = time()
                     if check_dist > 100:
+                        if shootingtime == 0:
+                            shootingtime = time()
                         angle_send = False
+                        '''
                         shooting_s += 1
-                    if check_dist > max_dist:
-                        max_dist = check_dist
-                        max_shooting_s = shooting_s
-                        if max_shooting_s != 0:
-                            # max_power = (max_dist - start_dist) / max_shooting_s
+                        if check_dist > max_dist:
+                            max_dist = check_dist
+                            max_shooting_s = shooting_s
+                            if max_shooting_s != 0:
+                                max_power = (max_dist - start_dist) / max_shooting_s
+                        '''
+                        if check_dist > max_dist:
+                            max_dist = check_dist
                             max_power = max_dist - start_dist
 
-                    if time() - shootingtime > 1:
-                        send["shoot_power"] = max_power * 3
-                        ready_tf = False
-                        shootingtime = 0
-                        shooting_s = 0
-                        max_dist = 0
-                        max_power = 0
-                        okay_2or3 = 0
-                        angle_send = True
+                        if time() - shootingtime > 1:
+                            send["shoot_power"] = max_power * 3
+                            ready_tf = False
+                            shootingtime = 0
+                            #shooting_s = 0
+                            max_dist = 0
+                            max_power = 0
+                            okay_2or3 = 0
+                            angle_send = True
+                            start_dist= 0
 
                 queue_cam2game.put(send)
 
