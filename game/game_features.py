@@ -7,6 +7,8 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 YELLOW = (255, 255, 0)
 BLUE = (0, 0, 255)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
 GRAY = (128, 128, 128)
 
 SCREEN_WIDTH = 800
@@ -96,11 +98,12 @@ def new_move(stones, dt=1 / 60):
 
 # 돌 클래스에서 게임판을 전달받았으므로 draw에서 surface안써줘도됨
 def new_draw(window, contents, now_select, turn, is_ready):
-    fontObj = contents["fontObj"]
+    fontObj = pygame.font.Font("assets/DungGeunMo.ttf", 40)
     stones = contents["stones"]
+    fn_images = contents["fn_images"]
 
     window.fill((0, 0, 0))
-    window.blit(contents["board_img"], (150, 50))
+    window.blit(contents["board_img"], (50, 50))
 
     arrow(
         window,
@@ -116,11 +119,44 @@ def new_draw(window, contents, now_select, turn, is_ready):
         if stone.visible:
             stone.draw()
 
-    txt = "GRAY TURN" if turn else "WHITE TURN"
-    textprint(window, fontObj, txt, 800, 50)
-    for i in range(1, 6):
+    txt = "GRAY TURN ↓" if turn else "WHITE TURN ↑"
 
-        textprint(window, fontObj, str(i), 800 + (i - 3) * 30, 100)
+    select_surface = pygame.Surface((350, 200))
+    select_surface.fill(BLACK)
+    select_surface.convert_alpha()
+
+    ready_surface = pygame.Surface((350, 250))
+    ready_surface.fill(BLACK)
+    ready_surface.convert_alpha()
+
+    if not is_ready:
+        pygame.draw.rect(select_surface, GREEN, (0, 0, 350, 200), 5)
+        textprint(select_surface, fontObj, f"알 선택:   {now_select%5+1}", 150, 40, GREEN)
+
+        textprint(ready_surface, fontObj, "슈팅 모드", 120, 40, (90, 0, 0))
+
+    else:
+        pygame.draw.rect(ready_surface, RED, (0, 0, 350, 250), 5)
+        textprint(select_surface, fontObj, f"알 선택:   {now_select%5+1}", 150, 40, (0, 90, 0))
+
+        textprint(ready_surface, fontObj, "슈팅 모드", 120, 40, RED)
+
+    for i in range(5):  # 손가락 5개
+        select_surface.blit(fn_images[i], (15 + i * 65, 100))
+
+    # ready_surface.blit(contents["okay_img"], (250, 10))  # 오케이
+    ready_surface.blit(contents["okay_img"], (30, 100))  # 오케이
+    textprint(ready_surface, pygame.font.Font("assets/DungGeunMo.ttf", 20), "튕기면 슛!", 90, 220)
+    ready_surface.blit(contents["rock_img"], (200, 100))  # 취소(주먹)
+    textprint(ready_surface, pygame.font.Font("assets/DungGeunMo.ttf", 20), "슈팅모드 해제", 260, 220)
+
+    window.blit(contents["back_img"], (0, 0))  # 뒤로가기(권총)
+    textprint(window, pygame.font.Font("assets/DungGeunMo.ttf", 20), "시작화면으로", 120, 25)
+    textprint(window, fontObj, txt, 775, 60)
+
+    window.blit(select_surface, (600, 100))
+    window.blit(ready_surface, (600, 300))
+
     pygame.display.flip()
 
 

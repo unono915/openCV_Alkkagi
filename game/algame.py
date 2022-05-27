@@ -40,9 +40,9 @@ def init_window():
     fontObj = pygame.font.Font("assets/DungGeunMo.ttf", 25)
 
     # team 0
-    stones = [Stone(start_x=i * 78 + 244, start_y=144, mass=i, team=0, surface=window) for i in range(5)]
+    stones = [Stone(start_x=i * 78 + 144, start_y=144, mass=i, team=0, surface=window) for i in range(5)]
     # team 1
-    stones += [Stone(start_x=i * 78 + 244, start_y=457, mass=i + 5, team=1, surface=window) for i in range(5)]
+    stones += [Stone(start_x=i * 78 + 144, start_y=457, mass=i + 5, team=1, surface=window) for i in range(5)]
     prev_select = [0, 5]
 
     # 바둑판
@@ -65,6 +65,26 @@ def init_window():
     bg_img1 = pygame.transform.scale(bg_img1, (SCREEN_WIDTH, SCREEN_HEIGHT))
     window.blit(bg_img1, (0, 0))
 
+    f1_img = pygame.image.load("assets/one.png").convert()
+    f1_img = pygame.transform.scale(f1_img, (60, 60))
+    f2_img = pygame.image.load("assets/two.png").convert()
+    f2_img = pygame.transform.scale(f2_img, (60, 60))
+    f3_img = pygame.image.load("assets/three.png").convert()
+    f3_img = pygame.transform.scale(f3_img, (60, 60))
+    f4_img = pygame.image.load("assets/four.png").convert()
+    f4_img = pygame.transform.scale(f4_img, (60, 60))
+    f5_img = pygame.image.load("assets/five.png").convert()
+    f5_img = pygame.transform.scale(f5_img, (60, 60))
+
+    fn_images = [f1_img, f2_img, f3_img, f4_img, f5_img]
+    back_img = pygame.image.load("assets/back.png").convert()
+    back_img = pygame.transform.scale(back_img, (50, 50))
+    rock_img = pygame.image.load("assets/rock.png").convert()
+    rock_img = pygame.transform.scale(rock_img, (100, 100))
+    okay_img = pygame.image.load("assets/okay.png").convert()
+    okay_img = pygame.transform.scale(okay_img, (100, 100))
+    shoot_img = pygame.image.load("assets/shoot.png").convert()
+    shoot_img = pygame.transform.scale(shoot_img, (100, 100))
     # 배경음악
     """pygame.mixer.music.load("assets/intro.mp3")
     pygame.mixer.music.play(-1)"""
@@ -77,6 +97,11 @@ def init_window():
         "arrow_offset": arrow_offset,
         "dotline_offset": dotline_offset,
         "fontObj": fontObj,
+        "fn_images": fn_images,
+        "back_img": back_img,
+        "rock_img": rock_img,
+        "okay_img": okay_img,
+        "shoot_img": shoot_img,
     }
 
 
@@ -116,14 +141,11 @@ def gesture_handler():
     global turn, turn_changed, now_select, newturn, is_ready
     recieve = queue_cam2game.get_nowait()
     newturn = turn
-    print(recieve)
     if recieve["shoot_angle"] != None:
         stones[now_select].arrow_angle = recieve["shoot_angle"]
 
     if recieve["ready"]:  # ready mode
         is_ready = True
-        print(is_ready)
-
         if recieve["gesture"] == -1:  # 주먹모양, 알 선택 모드로
             is_ready = recieve["ready"] = False
             return
@@ -136,6 +158,7 @@ def gesture_handler():
             return
 
     else:  # not ready, 알 선택 모드
+        is_ready = False
         if recieve["gesture"] == 6:  # 권총 손가락 --> 뒤로가기
             if ask_exit(window, queue_cam2game, contents["fontObj"]):
                 game_main(queue_cam2game, queue_game2cam)
@@ -150,7 +173,7 @@ def gesture_handler():
 
 def single_game():
     global turn, turn_changed, now_select, newturn, is_ready
-    window.blit(contents["board_img"], (150, 50))  # 바둑판 위치
+    window.blit(contents["board_img"], (50, 50))  # 바둑판 위치
     clock = pygame.time.Clock()
     while True:
         if turn == 1:  # player
@@ -185,7 +208,7 @@ def single_game():
             stones[com_stone].angle = stones[com_stone].arrow_angle = (
                 angle_0to5(stones[target], stones[com_stone]) + 180
             ) % 360
-            print(stones[com_stone].angle)
+            # print(stones[com_stone].angle)
             stones[com_stone].vel = random.randint(500, 1200)
             newturn = 1 - turn
             turn_changed = True
@@ -196,7 +219,7 @@ def single_game():
         new_draw(window, contents, now_select, turn, is_ready)
 
         if turn_changed:
-            print("turn_changed")
+            # print("turn_changed")
             now_select = prev_select[newturn]
             turn = newturn
             turn_changed = False
@@ -221,7 +244,7 @@ def single_game():
 
 def multi_game():
     global turn, turn_changed, now_select, newturn, is_ready
-    window.blit(contents["board_img"], (150, 50))  # 바둑판 위치
+    window.blit(contents["board_img"], (50, 50))  # 바둑판 위치
     clock = pygame.time.Clock()
     while True:
         try:  # handGesture 에서 queue를 이용해 값 가져오기
@@ -249,7 +272,7 @@ def multi_game():
         new_draw(window, contents, now_select, turn, is_ready)
 
         if turn_changed:
-            print("turn_changed")
+            # print("turn_changed")
             now_select = prev_select[newturn]
             turn = newturn
             turn_changed = False
