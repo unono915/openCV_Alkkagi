@@ -88,6 +88,7 @@ def cval(queue_cam2game, queue_game2cam):
     max_power = 0
     cnt = 0
     mode_idx = 0
+    angle_send = True
 
     while cap.isOpened():
         try:  # handGesture 에서 queue를 이용해 값 가져오기
@@ -134,7 +135,7 @@ def cval(queue_cam2game, queue_game2cam):
                     # queue_cam2game.put(send)
                     # print("Let's game")
 
-                if cnt % 2 and not ready_tf:
+                if cnt % 2 and angle_send:
                     shoot_angle = angle_0to5(hand_landmarks.landmark[0], hand_landmarks.landmark[5])
                     send["shoot_angle"] = shoot_angle
                     # print(shoot_angle, "도")
@@ -169,10 +170,11 @@ def cval(queue_cam2game, queue_game2cam):
                         check_dist = d1_to_2
                     elif okay_2or3 == 3:
                         check_dist = d1_to_3
-                    print(check_dist)
+                    #print(check_dist)
                     if shootingtime == 0:
                         shootingtime = time()
                     if check_dist > 100:
+                        angle_send = False
                         shooting_s += 1
                     if check_dist > max_dist:
                         max_dist = check_dist
@@ -189,6 +191,7 @@ def cval(queue_cam2game, queue_game2cam):
                         max_dist = 0
                         max_power = 0
                         okay_2or3 = 0
+                        angle_send = True
 
                 queue_cam2game.put(send)
 
