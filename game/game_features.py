@@ -103,28 +103,6 @@ def new_draw(window, contents, now_select, turn):
         if stone.visible:
             stone.draw()
     textprint(window, fontObj, score_text(stones, now_select))
-    if turn == 0:
-        textprint(window, fontObj, "WHITE TURN", 800, 500)
-    else:
-        textprint(window, fontObj, "GRAY TURN", 800, 500)
-
-    for stone in stones:
-        if stone.mass == 0:
-            textprint(
-                window, fontObj, "------- WHITE -------", 800, 120 + stone.mass * 30 + (stone.mass // 5) * 30 - 30
-            )
-        if stone.mass == 5:
-            textprint(
-                window, fontObj, "-------  GRAY -------", 800, 120 + stone.mass * 30 + (stone.mass // 5) * 30 - 30
-            )
-        if not stone.visible:
-            textprint(
-                window, fontObj, "%d 은 죽었습니다." % (stone.mass + 1), 800, 120 + stone.mass * 30 + (stone.mass // 5) * 30
-            )
-        else:
-            textprint(
-                window, fontObj, "%d 은 살아있습니다." % (stone.mass + 1), 800, 120 + stone.mass * 30 + (stone.mass // 5) * 30
-            )
 
     pygame.display.flip()
 

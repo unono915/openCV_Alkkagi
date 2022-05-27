@@ -11,7 +11,7 @@ BLACK = (0, 0, 0)
 YELLOW = (255, 255, 0)
 BLUE = (0, 0, 255)
 
-SCREEN_WIDTH = 1000
+SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 
 # Movement substeps at the given timestep
@@ -31,7 +31,7 @@ def init_window():
 
     # 화면 생성
     # screen = Screen("lightbulb", 1000, 600, (0, 0, 0))
-    window = Screen("lightbulb", 1000, 600, (0, 0, 0)).screen  # 게임화면
+    window = Screen("lightbulb", SCREEN_WIDTH, SCREEN_HEIGHT, (0, 0, 0)).screen  # 게임화면
 
     pygame.init()
     fontObj = pygame.font.Font("assets/DungGeunMo.ttf", 25)
@@ -59,8 +59,8 @@ def init_window():
 
     # 배경화면
     bg_img1 = pygame.image.load("assets/bg5.png")
-    bg_img1 = pygame.transform.scale(bg_img1, (1000, 600))
-    window.blit(bg_img1, (0, 0))
+    bg_img1 = pygame.transform.scale(bg_img1, (SCREEN_WIDTH, SCREEN_HEIGHT - 150))
+    window.blit(bg_img1, (0, 75))
 
     # 배경음악
     """pygame.mixer.music.load("assets/intro.mp3")
@@ -88,7 +88,7 @@ def start_screen(queue_cam2game):
     textprint(menu, fontObj, "1. Single Play", 200, 150, BLACK, WHITE)
     textprint(menu, fontObj, "2. Multi Play", 200, 200, BLACK, WHITE)
     textprint(menu, fontObj, "3. Exit", 200, 250, BLACK, WHITE)
-    window.blit(menu, (300, 150))
+    window.blit(menu, (200, 150))
     pygame.display.flip()
     waiting = True
     while waiting:
@@ -121,12 +121,6 @@ def single_game(queue_cam2game, queue_game2cam):
             try:  # handGesture 에서 queue를 이용해 값 가져오기
                 recieve = queue_cam2game.get_nowait()
 
-                if recieve["ready"]:  # ready state
-                    # shoot popup
-                    1
-                else:  # not ready state
-                    1
-
                 # 각도가 있을 경우 (0도도 포함)
                 if recieve["shoot_angle"] != None:
                     stones[now_select].arrow_angle = recieve["shoot_angle"]
@@ -149,6 +143,7 @@ def single_game(queue_cam2game, queue_game2cam):
                 if recieve["gesture"] == 6:  # 권총 손가락 --> 뒤로가기
                     if ask_exit(window, queue_cam2game, contents["fontObj"]):
                         game_main(queue_cam2game, queue_game2cam)
+
             except Exception:
                 pass
 
@@ -178,7 +173,7 @@ def single_game(queue_cam2game, queue_game2cam):
                 angle_0to5(stones[target], stones[com_stone]) + 180
             ) % 360
             print(stones[com_stone].angle)
-            stones[com_stone].vel = random.random() * 1000
+            stones[com_stone].vel = random.randint(500, 1200)
             newturn = 1 - turn
             turn_changed = True
             prev_select[turn] = com_stone
