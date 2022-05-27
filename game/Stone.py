@@ -6,7 +6,7 @@ elasticity = 1  # 충돌 시 속력 감소
 
 class Stone:  # 처음 돌을 놓는 위치와 레벨을 전달받고, 반지름 질량은 기본값을 설정
     # x, y, radius
-    def __init__(self, start_x=10, start_y=10, radius=10, mass=1, surface=None, team=None, visible=1, bycon=-1):
+    def __init__(self, start_x=10, start_y=10, radius=15, mass=1, surface=None, team=None, visible=1, bycon=-1):
         self.radius = radius
         self.x = start_x
         self.y = start_y

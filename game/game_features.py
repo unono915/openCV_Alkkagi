@@ -113,7 +113,7 @@ def ask_exit(window, queue_cam2game, fontObj):  # 게임중 손가락으로 3 �
     textprint(ask_window, fontObj, "시작화면으로 나가시겠습니까?", 200, 50, BLACK, WHITE)
     textprint(ask_window, fontObj, "1. 나가기", 100, 100, BLACK, WHITE)
     textprint(ask_window, fontObj, "2. 계속하기", 250, 100, BLACK, WHITE)
-    window.blit(ask_window, (300, 250))
+    window.blit(ask_window, (200, 200))
     pygame.display.flip()
 
     while True:
@@ -186,7 +186,7 @@ def collide(p1, p2):
         p2.vel = hypot(vel2_x_new, vel2_y)
 
         if vel1_x_new == 0:
-            # print(p1.mass, " angle:", p1.angle, " / ", p2.mass, " angle:", p2.angle, "\n")
+            print(p1.mass, " angle:", p1.angle, " / ", p2.mass, " angle:", p2.angle, "\n")
             if vel1_y >= 0:
                 p1.angle = 90 + tangent_line_angle
             else:
@@ -196,7 +196,7 @@ def collide(p1, p2):
             if vel1_x_new < 0:
                 p1.angle += 180
         if vel2_x_new == 0:
-            # print(p1.mass, " angle:", p1.angle, " / ", p2.mass, " angle:", p2.angle, "\n")
+            print(p1.mass, " angle:", p1.angle, " / ", p2.mass, " angle:", p2.angle, "\n")
             if vel2_y >= 0:
                 p2.angle = 90 + tangent_line_angle
             else:

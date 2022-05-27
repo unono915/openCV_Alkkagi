@@ -125,6 +125,11 @@ def single_game(queue_cam2game, queue_game2cam):
                 if recieve["shoot_angle"] != None:
                     stones[now_select].arrow_angle = recieve["shoot_angle"]
 
+                if recieve["gesture"] in (1, 2, 3, 4, 5, 7):  # 7은 jax손
+                    if recieve["gesture"] == 7:
+                        recieve["gesture"] = 3
+                    now_select = recieve["gesture"] - 1 + turn * 5
+
                 newturn = turn
                 # 발사(손튕기기)한 경우
                 if recieve["shoot_power"]:
@@ -132,13 +137,6 @@ def single_game(queue_cam2game, queue_game2cam):
                     stones[now_select].vel = recieve["shoot_power"]
                     turn_changed = True
                     newturn = 1 - turn
-
-                if recieve["gesture"]:
-                    print(recieve["gesture"])
-                if recieve["gesture"] in (1, 2, 3, 4, 5, 7):  # 7은 jax손
-                    if recieve["gesture"] == 7:
-                        recieve["gesture"] = 3
-                    now_select = recieve["gesture"] + turn * 4
 
                 if recieve["gesture"] == 6:  # 권총 손가락 --> 뒤로가기
                     if ask_exit(window, queue_cam2game, contents["fontObj"]):
@@ -209,6 +207,11 @@ def multi_game(queue_cam2game, queue_game2cam):
             if recieve["shoot_angle"] != None:
                 stones[now_select].arrow_angle = recieve["shoot_angle"]
 
+            if recieve["gesture"] in (1, 2, 3, 4, 5, 7):  # 7은 jax손
+                if recieve["gesture"] == 7:
+                    recieve["gesture"] = 3
+                now_select = recieve["gesture"] - 1 + turn * 5
+
             newturn = turn
             # 발사(손튕기기)한 경우
             if recieve["shoot_power"]:
@@ -216,11 +219,6 @@ def multi_game(queue_cam2game, queue_game2cam):
                 stones[now_select].vel = recieve["shoot_power"]
                 turn_changed = True
                 newturn = 1 - turn
-
-            if recieve["gesture"] in (1, 2, 3, 4, 5, 7):  # 7은 jax손
-                if recieve["gesture"] == 7:
-                    recieve["gesture"] = 3
-                now_select = recieve["gesture"] + turn * 4
 
             if recieve["gesture"] == 6:  # 권총 손가락
                 if ask_exit(window, queue_cam2game, contents["fontObj"]):
