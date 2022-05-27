@@ -11,7 +11,7 @@ BLACK = (0, 0, 0)
 YELLOW = (255, 255, 0)
 BLUE = (0, 0, 255)
 
-SCREEN_WIDTH = 800
+SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
 
 # Movement substeps at the given timestep
@@ -159,7 +159,7 @@ def single_game(queue_cam2game, queue_game2cam):
 
             prev_select[turn] = now_select
 
-        elif stones[prev_select[1]].vel == 0:  # ai
+        elif stones[prev_select[1]].vel < 10:  # ai
             com_stone = random.randint(0, 4)
             while stones[com_stone].is_dead():
                 com_stone = com_stone - 4 if target == 4 else com_stone + 1

@@ -49,6 +49,7 @@ class Stone:  # 처음 돌을 놓는 위치와 레벨을 전달받고, 반지름
         stone.vel += 20
 
 
+"""
 def collide(p1: Stone, p2: Stone):
     m1, m2 = 1, 1  # p1, p2의 질량. 일단 상수로 하드코딩해두었음. 추후에 Stone 클래스에 질량 속성을 추가하면 m1,m2 대신 사용.
     dx = p2.x - p1.x
@@ -81,10 +82,10 @@ def collide(p1: Stone, p2: Stone):
         p1.vel = hypot(vel1_x_new, vel1_y)
         p2.vel = hypot(vel2_x_new, vel2_y)
 
-        """if vel1_x_new == 0 and vel2_x_new == 0:
+        if vel1_x_new == 0 and vel2_x_new == 0:
             print(p1.mass, p1.vel, p2.mass, p2.vel)
             p1.divide(p2)
-            return"""
+            return
 
         if vel1_x_new == 0:
             # print(p1.mass, " angle:", p1.angle, " / ", p2.mass, " angle:", p2.angle, "\n")
@@ -108,3 +109,4 @@ def collide(p1: Stone, p2: Stone):
                 p2.angle += 180
 
         # 복잡한 충돌은 이 게임에서 불가능하다.
+"""
