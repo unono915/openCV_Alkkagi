@@ -155,7 +155,6 @@ def cval(queue_cam2game, queue_game2cam):
                                 start_dist = d1_to_3
                             okay_2or3 = 3
                         ready_tf = True
-                        send["ready"] = True
                         
                 if angle_send:
                     shoot_angle = angle_0to5(hand_landmarks.landmark[0], hand_landmarks.landmark[5])
@@ -195,7 +194,7 @@ def cval(queue_cam2game, queue_game2cam):
                         okay_2or3 = 0
                         angle_send = True
                         start_dist= 0
-
+                send["ready"] = ready_tf
                 queue_cam2game.put(send)
 
         cv2.imshow("Image", img)
