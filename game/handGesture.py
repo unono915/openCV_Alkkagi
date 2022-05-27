@@ -155,6 +155,7 @@ def cval(queue_cam2game, queue_game2cam):
                                 start_dist = d1_to_3
                             okay_2or3 = 3
                         ready_tf = True
+                        send["ready"] = True
                         
                 if angle_send:
                     shoot_angle = angle_0to5(hand_landmarks.landmark[0], hand_landmarks.landmark[5])
@@ -166,7 +167,6 @@ def cval(queue_cam2game, queue_game2cam):
                         check_dist = d1_to_2
                     elif okay_2or3 == 3:
                         check_dist = d1_to_3
-                    print(check_dist)
                     #print(check_dist)
                     if check_dist > 150 and idx!= -1:
                         if shootingtime == 0:
@@ -187,6 +187,7 @@ def cval(queue_cam2game, queue_game2cam):
                     if shootingtime != 0 and time() - shootingtime > 1:
                         send["shoot_power"] = max_power * 3
                         ready_tf = False
+                        #send["ready"] = False
                         shootingtime = 0
                         #shooting_s = 0
                         max_dist = 0
