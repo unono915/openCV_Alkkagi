@@ -188,20 +188,22 @@ def collide(p1, p2):
         if vel1_x_new == 0:
             print(p1.mass, " angle:", p1.angle, " / ", p2.mass, " angle:", p2.angle, "\n")
             if vel1_y >= 0:
-                p1.angle = 90 + tangent_line_angle
+                p1.angle = (90 + tangent_line_angle) % 360
             else:
-                p1.angle = -90 + tangent_line_angle
+                p1.angle = (-90 + tangent_line_angle) % 360
         else:
             p1.angle = atan(vel1_y / vel1_x_new) / pi * 180 + tangent_line_angle
             if vel1_x_new < 0:
                 p1.angle += 180
+                p1.angle %= 360
         if vel2_x_new == 0:
             print(p1.mass, " angle:", p1.angle, " / ", p2.mass, " angle:", p2.angle, "\n")
             if vel2_y >= 0:
-                p2.angle = 90 + tangent_line_angle
+                p2.angle = (90 + tangent_line_angle) % 360
             else:
-                p2.angle = -90 + tangent_line_angle
+                p2.angle = (-90 + tangent_line_angle) % 360
         else:
             p2.angle = atan(vel2_y / vel2_x_new) / pi * 180 + tangent_line_angle
             if vel2_x_new < 0:
                 p2.angle += 180
+                p2.angle %= 360
