@@ -30,28 +30,40 @@ def textprint(window, fontObj, printobj, xcord=400, ycord=30, txtcolor=WHITE, bg
     window.blit(textSurfaceObj, textRectObj)
 
 
-def print_end(window, game_result):
-    # 게임 오버 메시지
-    game_font = pygame.font.Font(None, 40)
-    msg = game_font.render(game_result, True, YELLOW)  # 노란색
-    msg_rect = msg.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
-    window.blit(msg, msg_rect)
-    pygame.time.delay(2000)
+def all_stones_stop(stones):
+    for i in range(10):
+        if stones[i].vel:
+            return False
+    return True
 
 
-def score_text(stones, now_select):
-    scored = dict()
-    for stone in stones:
-        scored.setdefault(stone.team, 0)
-        sum = stone.visible
-        scored[stone.team] = scored[stone.team] + sum
+def team_alive(team, stones):
+    for i in range(team * 5, team * 5 + 5):
+        if stones[i].visible:
+            return True
+    return False
 
-    if scored[0] == 0:
-        return "GRAY WIN"
-    elif scored[1] == 0:
-        return "WHITE WIN"
+
+def print_end(window, win_team, fontObj):
+    if win_team == 0:
+        bg = WHITE
+        txtcolor = BLACK
+        txt = "하얀색 돌이 이겼습니다!"
+    elif win_team == 1:
+        bg = BLACK
+        txtcolor = WHITE
+        txt = "검은색 돌이 이겼습니다!"
     else:
-        return "White : " + str(scored[0]) + " vs Gray : " + str(scored[1]) + " " + "Selection :" + str(now_select + 1)
+        bg = YELLOW
+        txtcolor = BLUE
+        txt = "비겼습니다."
+
+    end_window = pygame.Surface((400, 150))
+    end_window.fill(bg)
+    textprint(end_window, fontObj, txt, 200, 75, txtcolor=txtcolor, bg=bg)
+    window.blit(end_window, (200, 200))
+    pygame.display.flip()
+    pygame.time.delay(5000)
 
 
 def arrow(window, arrow_angle, pivot, arrow_img, arrow_offset, dotline_img, dotline_offset):
@@ -98,11 +110,9 @@ def new_draw(window, contents, now_select, turn):
         contents["dotline_img"],
         contents["dotline_offset"],
     )
-    # arrow(window, arrow_img, stones[now_select].arrow_angle, (stones[now_select].x, stones[now_select].y), offset)
     for stone in stones:  # 바둑 돌
         if stone.visible:
             stone.draw()
-    textprint(window, fontObj, score_text(stones, now_select))
 
     pygame.display.flip()
 

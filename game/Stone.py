@@ -43,7 +43,3 @@ class Stone:  # 처음 돌을 놓는 위치와 레벨을 전달받고, 반지름
 
     def is_dead(self):
         return not self.visible
-
-    def divide(self, stone):
-        self.vel += 20
-        stone.vel += 20
