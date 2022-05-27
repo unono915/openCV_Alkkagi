@@ -59,8 +59,8 @@ def init_window():
 
     # 배경화면
     bg_img1 = pygame.image.load("assets/bg5.png")
-    bg_img1 = pygame.transform.scale(bg_img1, (SCREEN_WIDTH, SCREEN_HEIGHT - 150))
-    window.blit(bg_img1, (0, 75))
+    bg_img1 = pygame.transform.scale(bg_img1, (SCREEN_WIDTH, SCREEN_HEIGHT))
+    window.blit(bg_img1, (0, 0))
 
     # 배경음악
     """pygame.mixer.music.load("assets/intro.mp3")
@@ -77,6 +77,36 @@ def init_window():
     }
 
 
+def gesture_handler(queue_cam2game, queue_game2cam):
+    global newturn, turn_changed
+    try:  # handGesture 에서 queue를 이용해 값 가져오기
+        recieve = queue_cam2game.get_nowait()
+
+        # 각도가 있을 경우 (0도도 포함)
+        if recieve["shoot_angle"] != None:
+            stones[now_select].arrow_angle = recieve["shoot_angle"]
+
+        if recieve["gesture"] in (1, 2, 3, 4, 5, 7):  # 7은 jax손
+            if recieve["gesture"] == 7:
+                recieve["gesture"] = 3
+            now_select = recieve["gesture"] - 1 + turn * 5
+
+        newturn = turn
+        # 발사(손튕기기)한 경우
+        if recieve["shoot_power"]:
+            stones[now_select].angle = stones[now_select].arrow_angle
+            stones[now_select].vel = recieve["shoot_power"]
+            turn_changed = True
+            newturn = 1 - turn
+
+        if recieve["gesture"] == 6:  # 권총 손가락 --> 뒤로가기
+            if ask_exit(window, queue_cam2game, contents["fontObj"]):
+                game_main(queue_cam2game, queue_game2cam)
+
+    except Exception:
+        pass
+
+
 def start_screen(queue_cam2game):
 
     menu = pygame.Surface((400, 300))
@@ -88,7 +118,7 @@ def start_screen(queue_cam2game):
     textprint(menu, fontObj, "1. Single Play", 200, 150, BLACK, WHITE)
     textprint(menu, fontObj, "2. Multi Play", 200, 200, BLACK, WHITE)
     textprint(menu, fontObj, "3. Exit", 200, 250, BLACK, WHITE)
-    window.blit(menu, (200, 150))
+    window.blit(menu, (300, 150))
     pygame.display.flip()
     waiting = True
     while waiting:
@@ -111,6 +141,7 @@ def start_screen(queue_cam2game):
 
 
 def single_game(queue_cam2game, queue_game2cam):
+    global turn
     turn = 0
     turn_changed = False
     now_select = 0  # 현재 선택된 돌의 번호
