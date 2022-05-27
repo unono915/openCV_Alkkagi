@@ -131,7 +131,7 @@ def cval(queue_cam2game, queue_game2cam):
                 if mode_idx == idx:
                     gesture_wait += 1
                 #제스처를 2초간 유지
-                if gesture_wait == 14:
+                if gesture_wait == 10:
                     #슈팅 상태에 돌입했을때
                     if ready_tf:
                         if mode_idx == -1:
@@ -185,7 +185,7 @@ def cval(queue_cam2game, queue_game2cam):
                             max_power = max_dist - start_dist
 
                     if shootingtime != 0 and time() - shootingtime > 1:
-                        send["shoot_power"] = max_power * 4
+                        send["shoot_power"] = max_power * 3
                         ready_tf = False
                         shootingtime = 0
                         #shooting_s = 0
