@@ -95,7 +95,7 @@ def new_move(stones, dt=1 / 60):
 
 
 # 돌 클래스에서 게임판을 전달받았으므로 draw에서 surface안써줘도됨
-def new_draw(window, contents, now_select, turn):
+def new_draw(window, contents, now_select, turn, is_ready):
     fontObj = contents["fontObj"]
     stones = contents["stones"]
 

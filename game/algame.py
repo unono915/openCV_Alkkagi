@@ -246,7 +246,7 @@ def multi_game():
 
         # 움직임
         new_move(stones)
-        new_draw(window, contents, now_select, turn)
+        new_draw(window, contents, now_select, turn, is_ready)
 
         if turn_changed:
             print("turn_changed")
