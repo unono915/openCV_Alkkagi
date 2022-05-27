@@ -7,6 +7,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 YELLOW = (255, 255, 0)
 BLUE = (0, 0, 255)
+GRAY = (128, 128, 128)
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -110,8 +111,13 @@ def new_draw(window, contents, now_select, turn):
         contents["dotline_img"],
         contents["dotline_offset"],
     )
+
     for stone in stones:  # 바둑 돌
         if stone.visible:
+            if stone.mass == now_select:
+                stone.color = (255, 0, 0)
+            else:
+                stone.color = WHITE if stone.mass < 5 else GRAY
             stone.draw()
 
     pygame.display.flip()

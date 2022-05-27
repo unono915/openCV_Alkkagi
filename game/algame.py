@@ -9,6 +9,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 YELLOW = (255, 255, 0)
 BLUE = (0, 0, 255)
+GRAY = (128, 128, 128)
 
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
@@ -192,7 +193,7 @@ def single_game():
 
         # 움직임
         new_move(stones)
-        new_draw(window, contents, now_select, turn)
+        new_draw(window, contents, now_select, turn, is_ready)
 
         if turn_changed:
             print("turn_changed")
