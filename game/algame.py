@@ -128,7 +128,7 @@ def single_game(queue_cam2game, queue_game2cam):
                 if recieve["gesture"] in (1, 2, 3, 4, 5, 7):  # 7은 jax손
                     if recieve["gesture"] == 7:
                         recieve["gesture"] = 3
-                    now_select = recieve["gesture"] + turn * 4
+                    now_select = recieve["gesture"] - 1 + turn * 5
 
                 newturn = turn
                 # 발사(손튕기기)한 경우
@@ -210,7 +210,7 @@ def multi_game(queue_cam2game, queue_game2cam):
             if recieve["gesture"] in (1, 2, 3, 4, 5, 7):  # 7은 jax손
                 if recieve["gesture"] == 7:
                     recieve["gesture"] = 3
-                now_select = recieve["gesture"] + turn * 4
+                now_select = recieve["gesture"] - 1 + turn * 5
 
             newturn = turn
             # 발사(손튕기기)한 경우
