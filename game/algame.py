@@ -1,4 +1,3 @@
-from time import sleep
 import pygame
 import sys
 import random
@@ -14,6 +13,13 @@ BLUE = (0, 0, 255)
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 600
 
+global queue_cam2game, queue_game2cam
+queue_cam2game, queue_game2cam = None, None
+
+global turn, turn_changed, now_select, newturn, is_ready
+turn = turn_changed = now_select = newturn = is_ready = 0
+
+
 # Movement substeps at the given timestep
 # movement_substeps = 1
 # Target FPS
@@ -24,10 +30,6 @@ FPS = 60.0
 
 def init_window():
     global stones, window, contents, prev_select
-    """icon = pygame.Surface((1, 1))
-    icon.set_alpha(0)
-    pygame.display.set_icon(icon)
-    pygame.display.set_caption("OOP_LIGHTBULB")"""
 
     # 화면 생성
     # screen = Screen("lightbulb", 1000, 600, (0, 0, 0))
@@ -77,38 +79,7 @@ def init_window():
     }
 
 
-def gesture_handler(queue_cam2game, queue_game2cam):
-    global newturn, turn_changed
-    try:  # handGesture 에서 queue를 이용해 값 가져오기
-        recieve = queue_cam2game.get_nowait()
-
-        # 각도가 있을 경우 (0도도 포함)
-        if recieve["shoot_angle"] != None:
-            stones[now_select].arrow_angle = recieve["shoot_angle"]
-
-        if recieve["gesture"] in (1, 2, 3, 4, 5, 7):  # 7은 jax손
-            if recieve["gesture"] == 7:
-                recieve["gesture"] = 3
-            now_select = recieve["gesture"] - 1 + turn * 5
-
-        newturn = turn
-        # 발사(손튕기기)한 경우
-        if recieve["shoot_power"]:
-            stones[now_select].angle = stones[now_select].arrow_angle
-            stones[now_select].vel = recieve["shoot_power"]
-            turn_changed = True
-            newturn = 1 - turn
-
-        if recieve["gesture"] == 6:  # 권총 손가락 --> 뒤로가기
-            if ask_exit(window, queue_cam2game, contents["fontObj"]):
-                game_main(queue_cam2game, queue_game2cam)
-
-    except Exception:
-        pass
-
-
-def start_screen(queue_cam2game):
-
+def start_screen():
     menu = pygame.Surface((400, 300))
     menu.fill(WHITE)
     menu = menu.convert_alpha()
@@ -140,40 +111,46 @@ def start_screen(queue_cam2game):
             pass
 
 
-def single_game(queue_cam2game, queue_game2cam):
-    global turn
-    turn = 0
-    turn_changed = False
-    now_select = 0  # 현재 선택된 돌의 번호
+def gesture_handler():
+    global turn, turn_changed, now_select, newturn, is_ready
+    recieve = queue_cam2game.get_nowait()
+    newturn = turn
+
+    if recieve["ready"]:
+        pass
+    else:
+        pass
+    # 각도가 있을 경우 (0도도 포함)
+    if recieve["shoot_angle"] != None:
+        stones[now_select].arrow_angle = recieve["shoot_angle"]
+
+    if recieve["gesture"] in (1, 2, 3, 4, 5, 7):  # 7은 jax손
+        if recieve["gesture"] == 7:
+            recieve["gesture"] = 3
+        now_select = recieve["gesture"] - 1 + turn * 5
+        return
+
+    # 발사(손튕기기)한 경우
+    if recieve["shoot_power"]:
+        stones[now_select].angle = stones[now_select].arrow_angle
+        stones[now_select].vel = recieve["shoot_power"]
+        turn_changed = True
+        newturn = 1 - turn
+        return
+
+    if recieve["gesture"] == 6:  # 권총 손가락 --> 뒤로가기
+        if ask_exit(window, queue_cam2game, contents["fontObj"]):
+            game_main(queue_cam2game, queue_game2cam)
+
+
+def single_game():
+    global turn, turn_changed, now_select, newturn, is_ready
     window.blit(contents["board_img"], (150, 50))  # 바둑판 위치
     clock = pygame.time.Clock()
     while True:
         if turn == 1:  # player
             try:  # handGesture 에서 queue를 이용해 값 가져오기
-                recieve = queue_cam2game.get_nowait()
-
-                # 각도가 있을 경우 (0도도 포함)
-                if recieve["shoot_angle"] != None:
-                    stones[now_select].arrow_angle = recieve["shoot_angle"]
-
-                newturn = turn
-                # 발사(손튕기기)한 경우
-                if recieve["shoot_power"]:
-                    stones[now_select].angle = stones[now_select].arrow_angle
-                    stones[now_select].vel = recieve["shoot_power"]
-                    turn_changed = True
-                    newturn = 1 - turn
-
-                if recieve["gesture"]:
-                    print(recieve["gesture"])
-                if recieve["gesture"] in (1, 2, 3, 4, 5, 7):  # 7은 jax손
-                    if recieve["gesture"] == 7:
-                        recieve["gesture"] = 3
-                    now_select = recieve["gesture"]-1 + turn * 5
-
-                if recieve["gesture"] == 6:  # 권총 손가락 --> 뒤로가기
-                    if ask_exit(window, queue_cam2game, contents["fontObj"]):
-                        game_main(queue_cam2game, queue_game2cam)
+                gesture_handler()
 
             except Exception:
                 pass
@@ -183,7 +160,7 @@ def single_game(queue_cam2game, queue_game2cam):
             if now_select == -111:  # 종료
                 break
             elif now_select == 123:
-                game_main(queue_cam2game, queue_game2cam)"""
+                game_main()"""
 
             if stones[now_select].is_dead():
                 now_select += 1
@@ -219,43 +196,32 @@ def single_game(queue_cam2game, queue_game2cam):
             turn = newturn
             turn_changed = False
 
-        game_result = score_text(stones, now_select)
-        if game_result == "GRAY WIN" or game_result == "WHITE WIN":
-            print_end(window, game_result)  # 개임오버 메세지
+        team0_alive = team_alive(0, stones)
+        team1_alive = team_alive(1, stones)
+
+        if not team0_alive and not team1_alive:  # draw
+            print_end(window, 2, contents["fontObj"])
+            game_main(queue_cam2game, queue_game2cam)
+
+        elif not team0_alive:  # team1(Gray) win
+            print_end(window, 1, contents["fontObj"])
+            game_main(queue_cam2game, queue_game2cam)
+
+        elif not team1_alive:  # team0(White) win
+            print_end(window, 0, contents["fontObj"])
             game_main(queue_cam2game, queue_game2cam)
 
         clock.tick(FPS)
 
 
-def multi_game(queue_cam2game, queue_game2cam):
-    turn = 0
-    turn_changed = False
-    now_select = 0  # 현재 선택된 돌의 번호
+def multi_game():
+    global turn, turn_changed, now_select, newturn, is_ready
     window.blit(contents["board_img"], (150, 50))  # 바둑판 위치
     clock = pygame.time.Clock()
     while True:
         try:  # handGesture 에서 queue를 이용해 값 가져오기
-            recieve = queue_cam2game.get_nowait()
-            # 각도가 있을 경우 (0도도 포함)
-            if recieve["shoot_angle"] != None:
-                stones[now_select].arrow_angle = recieve["shoot_angle"]
+            gesture_handler()
 
-            newturn = turn
-            # 발사(손튕기기)한 경우
-            if recieve["shoot_power"]:
-                stones[now_select].angle = stones[now_select].arrow_angle
-                stones[now_select].vel = recieve["shoot_power"]
-                turn_changed = True
-                newturn = 1 - turn
-
-            if recieve["gesture"] in (1, 2, 3, 4, 5, 7):  # 7은 jax손
-                if recieve["gesture"] == 7:
-                    recieve["gesture"] = 3
-                now_select = recieve["gesture"]-1 + turn * 5
-
-            if recieve["gesture"] == 6:  # 권총 손가락
-                if ask_exit(window, queue_cam2game, contents["fontObj"]):
-                    game_main(queue_cam2game, queue_game2cam)
         except Exception:
             pass
 
@@ -264,7 +230,7 @@ def multi_game(queue_cam2game, queue_game2cam):
         if now_select == -111:  # 종료
             break
         elif now_select == 123:
-            game_main(queue_cam2game, queue_game2cam)"""
+            game_main()"""
 
         if stones[now_select].is_dead():
             now_select += 1
@@ -283,29 +249,38 @@ def multi_game(queue_cam2game, queue_game2cam):
             turn = newturn
             turn_changed = False
 
-        game_result = score_text(stones, now_select)
-        if game_result == "GRAY WIN" or game_result == "WHITE WIN":
-            print_end(window, game_result)  # 개임오버 메세지
+        team0_alive = team_alive(0, stones)
+        team1_alive = team_alive(1, stones)
+
+        if not team0_alive and not team1_alive:  # draw
+            print_end(window, 2, contents["fontObj"])
+            game_main(queue_cam2game, queue_game2cam)
+
+        elif not team0_alive:  # team1(Gray) win
+            print_end(window, 1, contents["fontObj"])
+            game_main(queue_cam2game, queue_game2cam)
+
+        elif not team1_alive:  # team0(White) win
+            print_end(window, 0, contents["fontObj"])
             game_main(queue_cam2game, queue_game2cam)
 
         clock.tick(FPS)
 
 
-def game_main(queue_cam2game, queue_game2cam):
-    """turn = 0
-    turn_changed = False
-    now_select = 0  # 현재 선택된 돌의 번호"""
+def game_main(q_cam2game, q_game2cam):
+    global queue_cam2game, queue_game2cam
+    queue_cam2game, queue_game2cam = q_cam2game, q_game2cam
 
     init_window()
     queue_game2cam.put(True)
-    mode = start_screen(queue_cam2game)
+    mode = start_screen()
     queue_game2cam.put(False)
     """pygame.mixer.music.load("assets/stage.mp3")
     pygame.mixer.music.play(-1)"""
     if mode == 1:
-        single_game(queue_cam2game, queue_game2cam)
+        single_game()
     elif mode == 2:
-        multi_game(queue_cam2game, queue_game2cam)
+        multi_game()
 
     pygame.display.update()
     pygame.quit()
