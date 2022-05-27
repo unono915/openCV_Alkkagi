@@ -4,6 +4,7 @@ import numpy as np
 
 max_num_hands = 1
 gesture = {
+    -1: "rock",
     0: "okay",
     1: "one",
     2: "two",
@@ -75,7 +76,7 @@ while cap.isOpened():
             angle = np.degrees(angle)  # Convert radian to degree
 
             data = np.array([angle], dtype=np.float32)
-            data = np.append(data, 9)
+            data = np.append(data, -1)
 
             mp_drawing.draw_landmarks(img, res, mp_hands.HAND_CONNECTIONS)
 

@@ -5,6 +5,7 @@ from time import time, sleep
 import numpy as np
 
 gesture = {
+    -1: "rock",
     0: "okay",
     1: "one",
     2: "two",
@@ -122,6 +123,7 @@ def cval(queue_cam2game, queue_game2cam):
                 d1_to_2 = d1_to_2 * 1000.0
                 d1_to_3 = d1_to_3 * 1000.0
 
+                #제스처를 인식한다
                 idx = gesture(hand_landmarks)
                 if mode_idx != idx:
                     gesture_wait = 0
@@ -129,10 +131,19 @@ def cval(queue_cam2game, queue_game2cam):
                 if mode_idx == idx:
                     gesture_wait += 1
                 #제스처를 2초간 유지
-                if gesture_wait == 20: 
-                    send["gesture"] = mode_idx
-                    print("gesture send")
-                    
+                if gesture_wait == 14:
+                    #슈팅 상태에 돌입했을때
+                    if ready_tf:
+                        if mode_idx == -1:
+                            okay_2or3 = 0
+                            start_dist= 0
+                            ready_tf = False
+                            angle_send = True
+                            print("슈팅 취소")
+                    else:
+                        send["gesture"] = mode_idx
+                        print("gesture send")
+                        
                     #okay or fuckay 슈팅 준비
                     if mode_idx == 0 or mode_idx == 9:
                         if mode_idx == 0:
@@ -155,8 +166,9 @@ def cval(queue_cam2game, queue_game2cam):
                         check_dist = d1_to_2
                     elif okay_2or3 == 3:
                         check_dist = d1_to_3
+                    print(check_dist)
                     #print(check_dist)
-                    if check_dist > 100:
+                    if check_dist and idx!= -1> 150:
                         if shootingtime == 0:
                             shootingtime = time()
                         angle_send = False
@@ -173,7 +185,7 @@ def cval(queue_cam2game, queue_game2cam):
                             max_power = max_dist - start_dist
 
                         if time() - shootingtime > 1:
-                            send["shoot_power"] = max_power * 3
+                            send["shoot_power"] = max_power * 4
                             ready_tf = False
                             shootingtime = 0
                             #shooting_s = 0

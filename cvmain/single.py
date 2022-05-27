@@ -4,6 +4,7 @@ import numpy as np
 
 max_num_hands = 1
 gesture = {
+    -1: "rock",
     0: "okay",
     1: "one",
     2: "two",
