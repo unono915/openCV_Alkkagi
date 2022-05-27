@@ -115,32 +115,36 @@ def gesture_handler():
     global turn, turn_changed, now_select, newturn, is_ready
     recieve = queue_cam2game.get_nowait()
     newturn = turn
-
-    if recieve["ready"]:
-        pass
-    else:
-        pass
-    # 각도가 있을 경우 (0도도 포함)
+    print(recieve)
     if recieve["shoot_angle"] != None:
         stones[now_select].arrow_angle = recieve["shoot_angle"]
 
-    if recieve["gesture"] in (1, 2, 3, 4, 5, 7):  # 7은 jax손
-        if recieve["gesture"] == 7:
-            recieve["gesture"] = 3
-        now_select = recieve["gesture"] - 1 + turn * 5
-        return
+    if recieve["ready"]:  # ready mode
+        is_ready = True
+        print(is_ready)
 
-    # 발사(손튕기기)한 경우
-    if recieve["shoot_power"]:
-        stones[now_select].angle = stones[now_select].arrow_angle
-        stones[now_select].vel = recieve["shoot_power"]
-        turn_changed = True
-        newturn = 1 - turn
-        return
+        if recieve["gesture"] == -1:  # 주먹모양, 알 선택 모드로
+            is_ready = recieve["ready"] = False
+            return
 
-    if recieve["gesture"] == 6:  # 권총 손가락 --> 뒤로가기
-        if ask_exit(window, queue_cam2game, contents["fontObj"]):
-            game_main(queue_cam2game, queue_game2cam)
+        if recieve["shoot_power"]:  # 발사(손튕기기)한 경우
+            stones[now_select].angle = stones[now_select].arrow_angle
+            stones[now_select].vel = recieve["shoot_power"]
+            turn_changed = True
+            newturn = 1 - turn
+            return
+
+    else:  # not ready, 알 선택 모드
+        if recieve["gesture"] == 6:  # 권총 손가락 --> 뒤로가기
+            if ask_exit(window, queue_cam2game, contents["fontObj"]):
+                game_main(queue_cam2game, queue_game2cam)
+
+        if recieve["gesture"] in (1, 2, 3, 4, 5, 7):  # 7은 jax손
+            if recieve["gesture"] == 7:
+                recieve["gesture"] = 3
+            now_select = recieve["gesture"] - 1 + turn * 5
+            return
+    # 각도가 있을 경우 (0도도 포함)
 
 
 def single_game():
