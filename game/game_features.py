@@ -114,12 +114,13 @@ def new_draw(window, contents, now_select, turn, is_ready):
 
     for stone in stones:  # 바둑 돌
         if stone.visible:
-            if stone.mass == now_select:
-                stone.color = (255, 0, 0)
-            else:
-                stone.color = WHITE if stone.mass < 5 else GRAY
             stone.draw()
 
+    txt = "GRAY TURN" if turn else "WHITE TURN"
+    textprint(window, fontObj, txt, 800, 50)
+    for i in range(1, 6):
+
+        textprint(window, fontObj, str(i), 800 + (i - 3) * 30, 100)
     pygame.display.flip()
 
 

@@ -177,7 +177,7 @@ def single_game():
         elif stones[prev_select[1]].vel < 10:  # ai
             com_stone = random.randint(0, 4)
             while stones[com_stone].is_dead():
-                com_stone = com_stone - 4 if target == 4 else com_stone + 1
+                com_stone = com_stone - 4 if com_stone == 4 else com_stone + 1
             target = random.randint(5, 9)
             while stones[target].is_dead():
                 target = target - 4 if target == 9 else target + 1
