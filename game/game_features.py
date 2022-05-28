@@ -142,7 +142,10 @@ def new_draw(window, contents, now_select, turn, is_ready):
         textprint(ready_surface, fontObj, "슈팅 모드", 120, 40, RED)
 
     for i in range(5):  # 손가락 5개
-        select_surface.blit(fn_images[i], (15 + i * 65, 100))
+        if now_select == i + turn * 5:
+            pygame.draw.rect(select_surface, GREEN, (10 + i * 65, 95, 70, 70), 3)
+        if stones[i + turn * 5].visible:
+            select_surface.blit(fn_images[i], (15 + i * 65, 100))
 
     # ready_surface.blit(contents["okay_img"], (250, 10))  # 오케이
     ready_surface.blit(contents["okay_img"], (30, 100))  # 오케이
