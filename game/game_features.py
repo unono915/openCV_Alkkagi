@@ -85,16 +85,55 @@ def arrow(window, arrow_angle, pivot, arrow_img, arrow_offset, dotline_img, dotl
     rect2 = rotated_arrow.get_rect(center=pivot + rotated_arrow_offset)
     window.blit(rotated_arrow, rect2)  # Blit the rotated image.
 
+def Ldist(x1, y1, x2, y2, x3, y3): # x3,y3 is the point
+    px = x2-x1
+    py = y2-y1
+    u = 0
+    norm = px*px + py*py
+    if norm != 0:
+        u =  ((x3 - x1) * px + (y3 - y1) * py) / float(norm)
+
+    if u > 1:
+        u = 1
+    elif u < 0:
+        u = 0
+
+    x = x1 + u * px
+    y = y1 + u * py
+
+    dx = x - x3
+    dy = y - y3
+
+    dist = (dx*dx + dy*dy)**.5
+
+    return dist
+
+def cal_dist(x1, y1, x2, y2, a, b):
+    area = abs((x1-a) * (y2-b) - (y1-b) * (x2 - a))
+    AB = ((x1-x2)**2 + (y1-y2)**2) **0.5
+    distance = area/AB
+    return distance
 
 def new_move(stones, dt=1 / 60):
     for p in stones:
         if p.visible:
-            p.move(dt)  # 보일 때만 움직임
-        for q in stones:
-            if p == q:
-                continue
-            collide(p, q)
-
+            p.xx = p.x + dt * p.vel * cos(radians(p.angle))
+            p.yy = p.y + dt * p.vel * sin(radians(p.angle))
+            for q in stones:
+                if p == q:
+                    continue
+                if Ldist(p.x,p.y,p.xx,p.yy,p.x,p.y) < 30: #충돌 가능
+                    for i in range(10):
+                        p.x += (dt * p.vel * cos(radians(p.angle)))/10
+                        p.y += (dt * p.vel * sin(radians(p.angle)))/10
+                        if hypot(p.x-q.x, p.y-q.y) < 30:
+                            break
+                    p.move(dt)
+                    p.collide(q)
+                else:
+                    p.x = p.xx
+                    p.y = p.yy
+                    p.move(dt)
 
 # 돌 클래스에서 게임판을 전달받았으므로 draw에서 surface안써줘도됨
 def new_draw(window, contents, now_select, turn, is_ready):
@@ -204,59 +243,60 @@ def select_stone(events, now_select, turn):
     return now_select
 
 
-def collide(p1, p2):
-    elasticity = 1  # 충돌 시 속력 감소
+# def collide(p1, p2):
+#     elasticity = 1  # 충돌 시 속력 감소
 
-    m1, m2 = 1, 1  # p1, p2의 질량. 일단 상수로 하드코딩해두었음. 추후에 Stone 클래스에 질량 속성을 추가하면 m1,m2 대신 사용.
-    dx = p2.x - p1.x
-    dy = p2.y - p1.y
+#     m1, m2 = 1, 1  # p1, p2의 질량. 일단 상수로 하드코딩해두었음. 추후에 Stone 클래스에 질량 속성을 추가하면 m1,m2 대신 사용.
+#     dx = p2.x - p1.x
+#     dy = p2.y - p1.y
 
-    dist = hypot(dx, dy)
-    if dist - 3 <= p1.radius + p2.radius:
-        p1.bycon = p2.mass
-        p2.bycon = p1.mass
+#     dist = hypot(dx, dy)
+#     # 29<dist<=30
+#     if 27 < dist < p1.radius + p2.radius:
+#         p1.bycon = p2.mass
+#         p2.bycon = p1.mass
 
-        if dx == 0:
-            tangent_line_angle = 90 if dy > 0 else -90
-        else:
-            tangent_line_angle = atan(dy / dx) / pi * 180
+#         if dx == 0:
+#             tangent_line_angle = 90 if dy > 0 else -90
+#         else:
+#             tangent_line_angle = atan(dy / dx) / pi * 180
 
-        # tangent_line_angle = atan(dy / dx) / pi * 180 if dx else 90
+#         # tangent_line_angle = atan(dy / dx) / pi * 180 if dx else 90
 
-        angle1_transform = p1.angle - tangent_line_angle
-        angle2_transform = p2.angle - tangent_line_angle
+#         angle1_transform = p1.angle - tangent_line_angle
+#         angle2_transform = p2.angle - tangent_line_angle
 
-        vel1_y = p1.vel * sin(radians(angle1_transform))
-        vel2_y = p2.vel * sin(radians(angle2_transform))
+#         vel1_y = p1.vel * sin(radians(angle1_transform))
+#         vel2_y = p2.vel * sin(radians(angle2_transform))
 
-        vel1_x = p1.vel * cos(radians(angle1_transform))
-        vel2_x = p2.vel * cos(radians(angle2_transform))
+#         vel1_x = p1.vel * cos(radians(angle1_transform))
+#         vel2_x = p2.vel * cos(radians(angle2_transform))
 
-        vel1_x_new = (1 - (1 + elasticity) * m2 / (m1 + m2)) * vel1_x + (1 + elasticity) * m2 / (m1 + m2) * vel2_x
-        vel2_x_new = (1 - (1 + elasticity) * m1 / (m1 + m2)) * vel2_x + (1 + elasticity) * m1 / (m1 + m2) * vel1_x
+#         vel1_x_new = (1 - (1 + elasticity) * m2 / (m1 + m2)) * vel1_x + (1 + elasticity) * m2 / (m1 + m2) * vel2_x
+#         vel2_x_new = (1 - (1 + elasticity) * m1 / (m1 + m2)) * vel2_x + (1 + elasticity) * m1 / (m1 + m2) * vel1_x
 
-        p1.vel = hypot(vel1_x_new, vel1_y)
-        p2.vel = hypot(vel2_x_new, vel2_y)
+#         p1.vel = hypot(vel1_x_new, vel1_y)
+#         p2.vel = hypot(vel2_x_new, vel2_y)
 
-        if vel1_x_new == 0:
-            print(p1.mass, " angle:", p1.angle, " / ", p2.mass, " angle:", p2.angle, "\n")
-            if vel1_y >= 0:
-                p1.angle = (90 + tangent_line_angle) % 360
-            else:
-                p1.angle = (-90 + tangent_line_angle) % 360
-        else:
-            p1.angle = atan(vel1_y / vel1_x_new) / pi * 180 + tangent_line_angle
-            if vel1_x_new < 0:
-                p1.angle += 180
-                p1.angle %= 360
-        if vel2_x_new == 0:
-            print(p1.mass, " angle:", p1.angle, " / ", p2.mass, " angle:", p2.angle, "\n")
-            if vel2_y >= 0:
-                p2.angle = (90 + tangent_line_angle) % 360
-            else:
-                p2.angle = (-90 + tangent_line_angle) % 360
-        else:
-            p2.angle = atan(vel2_y / vel2_x_new) / pi * 180 + tangent_line_angle
-            if vel2_x_new < 0:
-                p2.angle += 180
-                p2.angle %= 360
+#         if vel1_x_new == 0:
+#             print(p1.mass, " angle:", p1.angle, " / ", p2.mass, " angle:", p2.angle, "\n")
+#             if vel1_y >= 0:
+#                 p1.angle = (90 + tangent_line_angle) % 360
+#             else:
+#                 p1.angle = (-90 + tangent_line_angle) % 360
+#         else:
+#             p1.angle = atan(vel1_y / vel1_x_new) / pi * 180 + tangent_line_angle
+#             if vel1_x_new < 0:
+#                 p1.angle += 180
+#                 p1.angle %= 360
+#         if vel2_x_new == 0:
+#             print(p1.mass, " angle:", p1.angle, " / ", p2.mass, " angle:", p2.angle, "\n")
+#             if vel2_y >= 0:
+#                 p2.angle = (90 + tangent_line_angle) % 360
+#             else:
+#                 p2.angle = (-90 + tangent_line_angle) % 360
+#         else:
+#             p2.angle = atan(vel2_y / vel2_x_new) / pi * 180 + tangent_line_angle
+#             if vel2_x_new < 0:
+#                 p2.angle += 180
+#                 p2.angle %= 360

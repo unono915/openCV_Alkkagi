@@ -162,7 +162,7 @@ def cval(queue_cam2game, queue_game2cam):
 
                 if start_dist == 0:
                     ready_tf = False
-                # 1초안에 슈팅
+ 
                 if ready_tf:
                     if okay_2or3 == 2:
                         check_dist = d1_to_2
@@ -184,7 +184,7 @@ def cval(queue_cam2game, queue_game2cam):
                         if check_dist > max_dist:
                             max_dist = check_dist
                             max_power = max_dist - start_dist
-
+                    # 1초안에 슈팅
                     if shootingtime != 0 and time() - shootingtime > 0.5:
                         send["shoot_power"] = max_power * 3
                         # ready_tf = False
@@ -195,7 +195,7 @@ def cval(queue_cam2game, queue_game2cam):
                         okay_2or3 = 0
                         angle_send = True
                         start_dist = 0
-                send["ready"] = ready_tf
+        send["ready"] = ready_tf
         queue_cam2game.put(send)
 
         cv2.imshow("Image", img)
