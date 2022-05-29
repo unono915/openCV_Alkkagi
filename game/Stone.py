@@ -12,6 +12,8 @@ class Stone:  # 처음 돌을 놓는 위치와 레벨을 전달받고, 반지름
         self.y = start_y
         self.prev_x = start_x
         self.prev_y = start_y
+        self.next_x = start_x
+        self.next_y = start_y
         self.mass = mass
 
         self.color = (128, 128, 128) if team else (255, 255, 255)
@@ -27,10 +29,19 @@ class Stone:  # 처음 돌을 놓는 위치와 레벨을 전달받고, 반지름
         self.visible = visible
         self.bycon = bycon
 
-    def get_stone_destination(self, dt):
-        new_x = self.x + dt * self.vel * cos(radians(self.angle))
-        new_y = self.y + dt * self.vel * sin(radians(self.angle))
-        return new_x, new_y
+    def set_next_xy(self, dt):
+        self.next_x = self.x + dt * self.vel * cos(radians(self.angle))
+        self.next_y = self.y + dt * self.vel * sin(radians(self.angle))
+
+    def check_collision(self):
+        dx = self.next_x - self.x
+        dy = self.next_y - self.y
+        dist = hypot(dx, dy)
+
+        if dist == 0:  # 그냥 안 움직인거
+            return False
+
+        return dist < self.radius * 2
 
     def move(self, dt):  # 전달받은 시간 간격에 속력을 곱해 돌의 위치를 이동시킨다. 속력은 0.95배로 계속 줄어든다.
         # self.prev_x = self.x
@@ -115,3 +126,7 @@ class Stone:  # 처음 돌을 놓는 위치와 레벨을 전달받고, 반지름
                 if vel2_x_new < 0:
                     p.angle += 180
                     p.angle %= 360
+
+            gap = self.radius - dist / 2 + 1
+            self.x += gap * cos(radians(self.angle))
+            self.y += gap * sin(radians(self.angle))

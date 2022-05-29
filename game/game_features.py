@@ -88,10 +88,11 @@ def arrow(window, arrow_angle, pivot, arrow_img, arrow_offset, dotline_img, dotl
 
 def new_move(stones, dt=1 / 60):
     for p in stones:
-        if p.visible:
-            p.move(dt)  # 보일 때만 움직임
+        if not p.visible:
+            continue
+        p.move(dt)  # 보일 때만 움직임
         for q in stones:
-            if p == q:
+            if p == q or not q.visible:
                 continue
             p.collide(q)
 
