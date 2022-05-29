@@ -86,8 +86,8 @@ def init_window():
     shoot_img = pygame.image.load("assets/shoot.png").convert()
     shoot_img = pygame.transform.scale(shoot_img, (100, 100))
     # 배경음악
-    """pygame.mixer.music.load("assets/intro.mp3")
-    pygame.mixer.music.play(-1)"""
+    # pygame.mixer.music.load("assets/intro.mp3")
+    # pygame.mixer.music.play(-1)
 
     contents = {
         "stones": stones,
@@ -197,7 +197,7 @@ def single_game():
 
             prev_select[turn] = now_select
 
-        elif stones[prev_select[1]].vel < 10:  # ai
+        elif all_stones_stop(stones):  # ai
             com_stone = random.randint(0, 4)
             while stones[com_stone].is_dead():
                 com_stone = com_stone - 4 if com_stone == 4 else com_stone + 1
@@ -303,8 +303,8 @@ def game_main(q_cam2game, q_game2cam):
     queue_game2cam.put(True)
     mode = start_screen()
     queue_game2cam.put(False)
-    """pygame.mixer.music.load("assets/stage.mp3")
-    pygame.mixer.music.play(-1)"""
+    # pygame.mixer.music.load("assets/stage.mp3")
+    # pygame.mixer.music.play(-1)
     if mode == 1:
         single_game()
     elif mode == 2:
