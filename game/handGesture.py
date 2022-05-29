@@ -185,8 +185,9 @@ def cval(queue_cam2game, queue_game2cam):
                             max_dist = check_dist
                             max_power = max_dist - start_dist
 
-                    if shootingtime != 0 and time() - shootingtime > 0.5:
-                        send["shoot_power"] = max_power * 3
+                    if shootingtime != 0 and time() - shootingtime > 0.7:
+                        print(max_power)
+                        send["shoot_power"] = max_power * 3.5
                         # ready_tf = False
                         shootingtime = 0
                         # shooting_s = 0

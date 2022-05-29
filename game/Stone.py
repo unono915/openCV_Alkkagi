@@ -53,6 +53,8 @@ class Stone:  # 처음 돌을 놓는 위치와 레벨을 전달받고, 반지름
         if self.x > 550 or self.y > 550 or self.x < 50 or self.y < 50:
             self.visible = 0
             self.vel = 0
+            self.x = 0
+            self.y = 0
             print("%d died by out of range" % (self.mass + 1))
 
         self.vel *= 0.95  # 속도의 감소
