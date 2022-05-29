@@ -93,7 +93,7 @@ def new_move(stones, dt=1 / 60):
         for q in stones:
             if p == q:
                 continue
-            collide(p, q)
+            p.collide(q)
 
 
 # 돌 클래스에서 게임판을 전달받았으므로 draw에서 surface안써줘도됨
@@ -249,6 +249,8 @@ def collide(p1, p2):
                 p1.angle = (-90 + tangent_line_angle) % 360
         else:
             p1.angle = atan(vel1_y / vel1_x_new) / pi * 180 + tangent_line_angle
+            p1.angle %= 360
+
             if vel1_x_new < 0:
                 p1.angle += 180
                 p1.angle %= 360
@@ -260,6 +262,8 @@ def collide(p1, p2):
                 p2.angle = (-90 + tangent_line_angle) % 360
         else:
             p2.angle = atan(vel2_y / vel2_x_new) / pi * 180 + tangent_line_angle
+            p2.angle %= 360
+
             if vel2_x_new < 0:
                 p2.angle += 180
                 p2.angle %= 360

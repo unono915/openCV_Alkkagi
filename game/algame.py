@@ -86,8 +86,8 @@ def init_window():
     shoot_img = pygame.image.load("assets/shoot.png").convert()
     shoot_img = pygame.transform.scale(shoot_img, (100, 100))
     # 배경음악
-    """pygame.mixer.music.load("assets/intro.mp3")
-    pygame.mixer.music.play(-1)"""
+    pygame.mixer.music.load("assets/intro.mp3")
+    pygame.mixer.music.play(-1)
 
     contents = {
         "stones": stones,
@@ -303,8 +303,8 @@ def game_main(q_cam2game, q_game2cam):
     queue_game2cam.put(True)
     mode = start_screen()
     queue_game2cam.put(False)
-    """pygame.mixer.music.load("assets/stage.mp3")
-    pygame.mixer.music.play(-1)"""
+    pygame.mixer.music.load("assets/stage.mp3")
+    pygame.mixer.music.play(-1)
     if mode == 1:
         single_game()
     elif mode == 2:
