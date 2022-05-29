@@ -133,6 +133,8 @@ def start_screen():
                 """waiting = False
                 pygame.quit()
                 sys.exit()"""
+            if recieve["gesture"] == 9:
+                return 9
         except Exception:
             pass
 
@@ -295,6 +297,60 @@ def multi_game():
         clock.tick(FPS)
 
 
+def test_game():
+    global turn, turn_changed, now_select, newturn, is_ready
+    window.blit(contents["board_img"], (50, 50))  # 바둑판 위치
+    clock = pygame.time.Clock()
+    while True:
+        events = pygame.event.get()
+        if all_stones_stop(stones):  # ai
+            com_stone = random.randint(0, 4)
+            while stones[com_stone].is_dead():
+                com_stone = com_stone - 4 if com_stone == 4 else com_stone + 1
+            target = random.randint(5, 9)
+            while stones[target].is_dead():
+                target = target - 4 if target == 9 else target + 1
+
+            if turn == 1:
+                com_stone, target = target, com_stone
+
+            stones[com_stone].angle = stones[com_stone].arrow_angle = (
+                angle_0to5(stones[target], stones[com_stone]) + 180
+            ) % 360
+            # print(stones[com_stone].angle)
+            stones[com_stone].vel = random.randint(500, 1200)
+            newturn = 1 - turn
+            turn_changed = True
+            prev_select[turn] = com_stone
+
+        # 움직임
+        new_move(stones)
+        new_draw(window, contents, now_select, turn, is_ready)
+
+        if turn_changed:
+            # print("turn_changed")
+            now_select = prev_select[newturn]
+            turn = newturn
+            turn_changed = False
+
+        team0_alive = team_alive(0, stones)
+        team1_alive = team_alive(1, stones)
+
+        if not team0_alive and not team1_alive:  # draw
+            print_end(window, 2, contents["fontObj"])
+            game_main(queue_cam2game, queue_game2cam)
+
+        elif not team0_alive:  # team1(Gray) win
+            print_end(window, 1, contents["fontObj"])
+            game_main(queue_cam2game, queue_game2cam)
+
+        elif not team1_alive:  # team0(White) win
+            print_end(window, 0, contents["fontObj"])
+            game_main(queue_cam2game, queue_game2cam)
+
+        clock.tick(FPS)
+
+
 def game_main(q_cam2game, q_game2cam):
     global queue_cam2game, queue_game2cam
     queue_cam2game, queue_game2cam = q_cam2game, q_game2cam
@@ -309,6 +365,8 @@ def game_main(q_cam2game, q_game2cam):
         single_game()
     elif mode == 2:
         multi_game()
+    elif mode == 9:
+        test_game()
 
     pygame.display.update()
     pygame.quit()
